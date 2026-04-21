@@ -1,0 +1,25 @@
+Package: FusioMRdev
+Type: Package
+Title: Flexible, Unified and Versatile Mendelian Randomization
+Version: 0.1.0
+Authors@R: c(
+    person("Bowei", "Kang", email = "kbw@uchicago.edu", role = c("aut", "cre")),
+    person("Sihao", "Feng", email = "sfeng56@uchicago.edu", role = "aut"))
+Description: A Bayesian Mendelian Randomization framework for causal effect
+    estimation from GWAS summary statistics. Supports single and multiple
+    exposure/outcome analyses with optional correlated horizontal pleiotropy.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 4.3.0)
+Imports:
+    Rcpp (>= 1.0.10),
+    invgamma,
+    stats
+LinkingTo:
+    Rcpp,
+    RcppArmadillo
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+RoxygenNote: 7.3.3
