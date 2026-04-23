@@ -1,9 +1,10 @@
-#' FusioMR: Bayesian Mendelian Randomization
+#' FusioMR: A Flexible and unified MR framework using summary statistics for 
+#' single- and multi-outcome, tailored for molecular trait exposures 
+#' while also applicable to complex trait exposures. 
 #'
-#' Main entry point of the FusioMR package. Estimates the causal effect
-#' of an exposure on an outcome from GWAS summary statistics, using a
-#' Bayesian model fit with Gibbs sampling. The input format mirrors that
-#' of \pkg{TwoSampleMR} and \pkg{MendelianRandomization}.
+#' Main function of the FusioMR package. Offer robust estimates the causal effect
+#' of an exposure on an outcome from GWAS summary statistics, using Bayesian 
+#' hierarchical model and uses Gibbs sampling.
 #'
 #' @param b_exp Numeric vector of SNP-exposure effect estimates.
 #' @param se_exp Numeric vector of standard errors of \code{b_exp}.
@@ -11,13 +12,8 @@
 #' @param se_out Numeric vector of standard errors of \code{b_out}.
 #' @param model Character string. One of \code{"seso_uhp_only"},
 #'   \code{"seso_with_chp"}, \code{"semo"}, \code{"memo"}.
-#'   Currently only \code{"seso_uhp_only"} is implemented.
-#' @param niter Number of Gibbs iterations (default 20000).
-#' @param burnin_prop Burn-in proportion in [0, 1) (default 0.5).
-#' @param p_value_threshold Two-sided p-value threshold on the
-#'   exposure Z-scores for IV selection (default 1e-3).
 #' @param control A list of advanced prior hyper-parameters returned by
-#'   \code{\link{fusiomr_control}}. Defaults are suitable for most uses.
+#'   \code{\link{parameter_control}}. Defaults are suitable for most uses.
 #' @param verbose Logical; if TRUE, print progress messages.
 #'
 #' @return A list with components
@@ -39,15 +35,13 @@
 #' b_exp  <- rnorm(K, 0, 0.1);  se_exp <- rep(0.01, K)
 #' b_out  <- 0.3 * b_exp + rnorm(K, 0, 0.01); se_out <- rep(0.01, K)
 #' fit <- fusiomr(b_exp, se_exp, b_out, se_out,
-#'                model = "seso_uhp_only", niter = 2000)
+#'                model = "seso_uhp_only", 
+#'                control = parameter_control(niter=2000))
 #' fit$est; fit$ci
 #' }
 fusiomr <- function(b_exp, se_exp, b_out, se_out,
                     model = c("seso_uhp_only", "seso_with_chp", "semo", "memo"),
-                    niter = 20000,
-                    burnin_prop = 0.5,
-                    p_value_threshold = 1e-3,
-                    control = fusiomr_control(),
+                    control = parameter_control(),
                     verbose = TRUE) {
 
   model <- match.arg(model)
@@ -65,18 +59,21 @@ fusiomr <- function(b_exp, se_exp, b_out, se_out,
     stop("Missing values are not allowed in the summary statistics.")
   if (any(se_exp <= 0) || any(se_out <= 0))
     stop("Standard errors must be strictly positive.")
-  if (!is.numeric(niter) || niter < 100)
-    stop("niter must be an integer >= 100.")
-  if (burnin_prop < 0 || burnin_prop >= 1)
-    stop("burnin_prop must be in [0, 1).")
-  if (p_value_threshold <= 0 || p_value_threshold >= 1)
-    stop("p_value_threshold must be in (0, 1).")
 
   # --- dispatch ----------------------------------------------------------
+  # unpack MCMC/selection settings from control
+  niter <- control$niter
+  burnin_prop <- control$burnin_prop
+  p_value_threshold <- control$p_value_threshold
+  if (!is.numeric(niter) || niter < 100)
+    stop("control$niter must be an integer >= 100.")
+  if (burnin_prop < 0 || burnin_prop >= 1)
+    stop("control$burnin_prop must be in [0, 1).")
+  if (p_value_threshold <= 0 || p_value_threshold >= 1)
+    stop("control$p_value_threshold must be in (0, 1).")
+  
   if (model == "seso_uhp_only") {
     return(fit_seso_uhp_only(b_exp, se_exp, b_out, se_out,
-                             niter = niter, burnin_prop = burnin_prop,
-                             p_value_threshold = p_value_threshold,
                              control = control, verbose = verbose))
   }
   stop(sprintf("Model '%s' is not yet implemented.", model))
@@ -85,14 +82,13 @@ fusiomr <- function(b_exp, se_exp, b_out, se_out,
 
 # Internal worker: seso_uhp_only
 fit_seso_uhp_only <- function(b_exp, se_exp, b_out, se_out,
-                              niter, burnin_prop, p_value_threshold,
                               control, verbose) {
-
+  niter <- control$niter
+  burnin_prop <- control$burnin_prop
+  p_value_threshold <- control$p_value_threshold
+  
   if (verbose) message("Running model: seso_uhp_only")
-
   # --- IV selection ------------------------------------------------------
-  # Note: prior is computed on all SNPs (pre-selection) to get a more
-  # stable MoM estimate, following the convention in seso_fusio_with_chp.R.
   sel <- get_sel_idx(b_exp, se_exp, p_value_threshold)
   K <- sum(sel)
   if (verbose) message(sprintf("Selected %d of %d IVs (p < %g).",

@@ -2,7 +2,9 @@
 % Please edit documentation in R/fusiomr.R
 \name{fusiomr}
 \alias{fusiomr}
-\title{FusioMR: Bayesian Mendelian Randomization}
+\title{FusioMR: A Flexible and unified MR framework using summary statistics for 
+single- and multi-outcome, tailored for molecular trait exposures 
+while also applicable to complex trait exposures.}
 \usage{
 fusiomr(
   b_exp,
@@ -10,10 +12,7 @@ fusiomr(
   b_out,
   se_out,
   model = c("seso_uhp_only", "seso_with_chp", "semo", "memo"),
-  niter = 20000,
-  burnin_prop = 0.5,
-  p_value_threshold = 0.001,
-  control = fusiomr_control(),
+  control = parameter_control(),
   verbose = TRUE
 )
 }
@@ -27,18 +26,10 @@ fusiomr(
 \item{se_out}{Numeric vector of standard errors of \code{b_out}.}
 
 \item{model}{Character string. One of \code{"seso_uhp_only"},
-\code{"seso_with_chp"}, \code{"semo"}, \code{"memo"}.
-Currently only \code{"seso_uhp_only"} is implemented.}
-
-\item{niter}{Number of Gibbs iterations (default 20000).}
-
-\item{burnin_prop}{Burn-in proportion in [0, 1) (default 0.5).}
-
-\item{p_value_threshold}{Two-sided p-value threshold on the
-exposure Z-scores for IV selection (default 1e-3).}
+\code{"seso_with_chp"}, \code{"semo"}, \code{"memo"}.}
 
 \item{control}{A list of advanced prior hyper-parameters returned by
-\code{\link{fusiomr_control}}. Defaults are suitable for most uses.}
+\code{\link{parameter_control}}. Defaults are suitable for most uses.}
 
 \item{verbose}{Logical; if TRUE, print progress messages.}
 }
@@ -54,10 +45,9 @@ A list with components
 }
 }
 \description{
-Main entry point of the FusioMR package. Estimates the causal effect
-of an exposure on an outcome from GWAS summary statistics, using a
-Bayesian model fit with Gibbs sampling. The input format mirrors that
-of \pkg{TwoSampleMR} and \pkg{MendelianRandomization}.
+Main function of the FusioMR package. Offer robust estimates the causal effect
+of an exposure on an outcome from GWAS summary statistics, using Bayesian 
+hierarchical model and uses Gibbs sampling.
 }
 \examples{
 \dontrun{
@@ -66,7 +56,8 @@ K <- 50
 b_exp  <- rnorm(K, 0, 0.1);  se_exp <- rep(0.01, K)
 b_out  <- 0.3 * b_exp + rnorm(K, 0, 0.01); se_out <- rep(0.01, K)
 fit <- fusiomr(b_exp, se_exp, b_out, se_out,
-               model = "seso_uhp_only", niter = 2000)
+               model = "seso_uhp_only", 
+               control = parameter_control(niter=2000))
 fit$est; fit$ci
 }
 }

@@ -9,8 +9,7 @@ test_that("seso_uhp_only recovers true beta on clean data", {
 
   fit <- fusiomr(b_exp, se_exp, b_out, se_out,
                  model = "seso_uhp_only",
-                 niter = 3000, burnin_prop = 0.5,
-                 p_value_threshold = 0.01, verbose = FALSE)
+                 verbose = FALSE)
 
   expect_type(fit, "list")
   expect_true(all(c("est", "se", "pval", "ci", "n_iv") %in% names(fit)))
@@ -29,14 +28,16 @@ test_that("fusiomr input validation works", {
                        model = "seso_uhp_only"),
                "same length")
   expect_error(fusiomr(c(1, 2), c(1, 2), c(1, 2), c(-1, 2),
-                       model = "seso_uhp_only"),
+                       model = "seso_uhp_only", control = parameter_control(niter = 500)),
                "positive")
 })
 
-test_that("fusiomr_control returns a well-formed list", {
-  ctrl <- fusiomr_control()
+test_that("parameter_control returns a well-formed list", {
+  ctrl <- parameter_control()
   expect_type(ctrl, "list")
-  expect_true(all(c("c_gamma", "c_theta", "kappa_gamma", "kappa_theta",
+  expect_true(all(c("niter", "burnin_prop", "p_value_threshold",
+                    "c_gamma", "c_theta", "kappa_gamma", "kappa_theta",
                     "rho_ov", "z_thresh") %in% names(ctrl)))
   expect_equal(ctrl$c_gamma, 0.5)
+  expect_equal(ctrl$niter, 20000)
 })
