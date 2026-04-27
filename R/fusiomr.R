@@ -42,10 +42,10 @@
 fusiomr <- function(b_exp, se_exp, b_out, se_out,
                     model = c("seso_uhp_only", "seso_with_chp", "semo", "memo"),
                     control = parameter_control(),
-                    verbose = TRUE) {
-
+                    verbose = FALSE) {
+  
   model <- match.arg(model)
-
+  
   # --- input validation ---------------------------------------------------
   if (!is.numeric(b_exp) || !is.numeric(se_exp) ||
       !is.numeric(b_out) || !is.numeric(se_out))
@@ -59,18 +59,15 @@ fusiomr <- function(b_exp, se_exp, b_out, se_out,
     stop("Missing values are not allowed in the summary statistics.")
   if (any(se_exp <= 0) || any(se_out <= 0))
     stop("Standard errors must be strictly positive.")
-
+  
   # --- dispatch ----------------------------------------------------------
   # unpack MCMC/selection settings from control
   niter <- control$niter
   burnin_prop <- control$burnin_prop
-  p_value_threshold <- control$p_value_threshold
   if (!is.numeric(niter) || niter < 100)
     stop("control$niter must be an integer >= 100.")
   if (burnin_prop < 0 || burnin_prop >= 1)
     stop("control$burnin_prop must be in [0, 1).")
-  if (p_value_threshold <= 0 || p_value_threshold >= 1)
-    stop("control$p_value_threshold must be in (0, 1).")
   
   if (model == "seso_uhp_only") {
     return(fit_seso_uhp_only(b_exp, se_exp, b_out, se_out,
@@ -82,27 +79,16 @@ fusiomr <- function(b_exp, se_exp, b_out, se_out,
 
 # Internal worker: seso_uhp_only
 fit_seso_uhp_only <- function(b_exp, se_exp, b_out, se_out,
-                              control, verbose) {
+                              control, verbose = FALSE) {
   niter <- control$niter
   burnin_prop <- control$burnin_prop
-  p_value_threshold <- control$p_value_threshold
   
-  if (verbose) message("Running model: seso_uhp_only")
-  # --- IV selection ------------------------------------------------------
-  sel <- get_sel_idx(b_exp, se_exp, p_value_threshold)
-  K <- sum(sel)
-  if (verbose) message(sprintf("Selected %d of %d IVs (p < %g).",
-                               K, length(b_exp), p_value_threshold))
-  if (K < 3)
-    stop(sprintf("Only %d IVs pass the threshold; need at least 3.", K))
+  message("Running model: seso_uhp_only")
+  K <- length(b_exp)
   if (K < 5)
-    warning("Fewer than 5 IVs selected; results may be unreliable.")
-
-  # post-selection subsets, passed to the Gibbs sampler
-  b_exp_s  <- b_exp[sel];  se_exp_s <- se_exp[sel]
-  b_out_s  <- b_out[sel];  se_out_s <- se_out[sel]
-
-  # --- prior: compute on full set, shape-scaled by selected K ------------
+    warning("Fewer than 5 IVs selected;")
+  
+  # --- compute MoM priors on the input data------------
   vp <- set_variance_priors(
     ghat = b_exp, gse = se_exp, Ghat = b_out, Gse = se_out,
     beta0 = NULL, K = K,
@@ -115,7 +101,7 @@ fit_seso_uhp_only <- function(b_exp, se_exp, b_out, se_out,
     z_thresh = control$z_thresh, trim = control$trim,
     kappa_gamma = control$kappa_gamma, kappa_theta = control$kappa_theta
   )
-
+  
   # --- initialize MCMC traces -------------------------------------------
   start_val <- init_setup_seso_uhp_only(
     niter = niter, K = K,
@@ -123,7 +109,7 @@ fit_seso_uhp_only <- function(b_exp, se_exp, b_out, se_out,
     sigma_gamma_init = sqrt(vp$gamma$prior_mean),
     sigma_theta_init = sqrt(vp$theta$prior_mean)
   )
-
+  
   # --- run Gibbs sampler (C++) ------------------------------------------
   if (verbose) message(sprintf("Gibbs sampling: niter=%d, burn-in=%d",
                                niter, floor(niter * burnin_prop)))
@@ -134,22 +120,22 @@ fit_seso_uhp_only <- function(b_exp, se_exp, b_out, se_out,
     gamma_tk = start_val$gamma_tk,
     sigma2_gamma_tk = start_val$sigma2_gamma_tk,
     sigma2_theta_tk = start_val$sigma2_theta_tk,
-    Gamma_hat = b_out_s, gamma_hat = b_exp_s,
-    s2_hat_Gamma = se_out_s^2, s2_hat_gamma = se_exp_s^2,
+    Gamma_hat = b_out, gamma_hat = b_exp,
+    s2_hat_Gamma = se_out^2, s2_hat_gamma = se_exp^2,
     a_gamma = vp$gamma$a, b_gamma = vp$gamma$b,
     a_theta = vp$theta$a, b_theta = vp$theta$b
   )
-
+  
   # --- post-burnin summary ----------------------------------------------
   burnin <- floor(niter * burnin_prop)
   draws <- res$beta_tk[(burnin + 1):niter]
   s <- get_summary(draws)
-
+  
   if (verbose) {
     cat("\n--- Results (seso_uhp_only) ---\n")
     print_summary(s)
   }
-
+  
   list(est = s$beta_est, se = s$beta_se, pval = s$beta_pval,
        ci = s$ci_emp, model = "seso_uhp_only", n_iv = K)
 }

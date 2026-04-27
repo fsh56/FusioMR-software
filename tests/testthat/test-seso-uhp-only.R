@@ -35,7 +35,7 @@ test_that("fusiomr input validation works", {
 test_that("parameter_control returns a well-formed list", {
   ctrl <- parameter_control()
   expect_type(ctrl, "list")
-  expect_true(all(c("niter", "burnin_prop", "p_value_threshold",
+  expect_true(all(c("niter", "burnin_prop",
                     "c_gamma", "c_theta", "kappa_gamma", "kappa_theta",
                     "rho_ov", "z_thresh") %in% names(ctrl)))
   expect_equal(ctrl$c_gamma, 0.5)

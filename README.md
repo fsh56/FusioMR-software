@@ -44,7 +44,7 @@ model$n_iv   # number of selected IVs
 fusiomr(b_exp, se_exp, b_out, se_out,
         model   = "seso_uhp_only",
         control = parameter_control(),
-        verbose = TRUE)
+        verbose = FALSE)
 ```
 
 **Arguments**

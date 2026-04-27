@@ -13,7 +13,7 @@ fusiomr(
   se_out,
   model = c("seso_uhp_only", "seso_with_chp", "semo", "memo"),
   control = parameter_control(),
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{

@@ -7,7 +7,6 @@
 parameter_control(
   niter = 20000,
   burnin_prop = 0.5,
-  p_value_threshold = 0.001,
   c_gamma = 0.5,
   c_theta = 0.8,
   kappa_gamma = 1,
@@ -28,8 +27,6 @@ parameter_control(
 posterior estimates;}
 
 \item{burnin_prop}{Burn-in proportion in [0, 1).}
-
-\item{p_value_threshold}{P-value threshold on the exposure Z-scores for IV selection.}
 
 \item{c_gamma}{Prior weight per IV for sigma^2_gamma (a_gamma = 1 + c_gamma*K/2), 
 Larger values make the inverse-gamma prior more concentrated around its mean. Default= 0.5;}

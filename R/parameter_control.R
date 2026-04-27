@@ -11,7 +11,6 @@
 #' @param niter Number of Gibbs iterations. Default 20000 is calibrated for stable 
 #' posterior estimates;
 #' @param burnin_prop Burn-in proportion in [0, 1).
-#' @param p_value_threshold P-value threshold on the exposure Z-scores for IV selection.
 #' @param c_gamma Prior weight per IV for sigma^2_gamma (a_gamma = 1 + c_gamma*K/2), 
 #'  Larger values make the inverse-gamma prior more concentrated around its mean. Default= 0.5;
 #' @param c_theta Prior weight per IV for sigma^2_theta (a_theta = 1 + c_theta*K/2),
@@ -38,27 +37,25 @@
 #' ctrl <- parameter_control()
 #' 
 parameter_control <- function(
-  niter = 20000,
-  burnin_prop = 0.5,
-  p_value_threshold = 1e-3,
-  c_gamma = 0.5,
-  c_theta = 0.8,
-  kappa_gamma = 1,
-  kappa_theta = 1,
-  Kmin = 5,
-  Kmax = 20,
-  rho_ov = 0,
-  z_thresh = NULL,
-  trim = 0.1,
-  hybrid = FALSE,
-  kappa_hybrid = 5,
-  global_mean_gamma = NULL,
-  global_mean_theta = NULL
+    niter = 20000,
+    burnin_prop = 0.5,
+    c_gamma = 0.5,
+    c_theta = 0.8,
+    kappa_gamma = 1,
+    kappa_theta = 1,
+    Kmin = 5,
+    Kmax = 20,
+    rho_ov = 0,
+    z_thresh = NULL,
+    trim = 0.1,
+    hybrid = FALSE,
+    kappa_hybrid = 5,
+    global_mean_gamma = NULL,
+    global_mean_theta = NULL
 ) {
   list(
     niter = niter,
     burnin_prop = burnin_prop,
-    p_value_threshold = p_value_threshold,
     c_gamma = c_gamma, 
     c_theta = c_theta,
     kappa_gamma = kappa_gamma, 
