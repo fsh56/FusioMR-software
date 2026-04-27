@@ -16,9 +16,9 @@ library(FusioMRdev)
 
 ## Quick Start
 
-The input format mirrors that of `TwoSampleMR` and `MendelianRandomization`.
-You only need four summary-statistics vectors and a `model` name:
+For the fusiomr function input, you only need four summary-statistics vectors and a `model` name:
 
+### Model1: seso_uhp_only
 ```r
 library(FusioMRdev)
 
@@ -28,14 +28,27 @@ K <- 80
 b_exp  <- rnorm(K, 0, 0.1);  se_exp <- rep(0.01, K)
 b_out  <- 0.3 * b_exp + rnorm(K, 0, 0.01); se_out <- rep(0.01, K)
 
-model <- fusiomr(b_exp, se_exp, b_out, se_out,
+model1 <- fusiomr(b_exp, se_exp, b_out, se_out,
                model = "seso_uhp_only")
 
-model$est    # causal effect estimate
-model$se     # standard error estimate
-model$ci     # 95% empirical credible interval
-model$pval   # two-sided p-value
-model$n_iv   # number of selected IVs
+model1$est    # causal effect estimate
+model1$se     # standard error estimate
+model1$ci     # 95% empirical credible interval
+model1$pval   # two-sided p-value
+```
+
+### Model2: seso_with_chp
+```r
+library(FusioMRdev)
+
+# Same input format as seso_uhp_only
+model2 <- fusiomr(b_exp, se_exp, b_out, se_out,
+               model = "seso_with_chp")
+
+model2$est    # causal effect estimate
+model2$se     # standard error estimate
+model2$ci     # 95% empirical credible interval
+model2$pval   # two-sided p-value
 ```
 
 ## Main Function
