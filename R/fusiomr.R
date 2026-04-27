@@ -73,6 +73,10 @@ fusiomr <- function(b_exp, se_exp, b_out, se_out,
     return(fit_seso_uhp_only(b_exp, se_exp, b_out, se_out,
                              control = control, verbose = verbose))
   }
+  if (model == "seso_with_chp") {
+    return(fit_seso_with_chp(b_exp, se_exp, b_out, se_out,
+                             control = control, verbose = verbose))
+    }
   stop(sprintf("Model '%s' is not yet implemented.", model))
 }
 
@@ -138,4 +142,80 @@ fit_seso_uhp_only <- function(b_exp, se_exp, b_out, se_out,
   
   list(est = s$beta_est, se = s$beta_se, pval = s$beta_pval,
        ci = s$ci_emp, model = "seso_uhp_only", n_iv = K)
+}
+
+# Internal worker: seso_with_chp
+fit_seso_with_chp <- function(b_exp, se_exp, b_out, se_out,
+                              control, verbose = FALSE) {
+  niter <- control$niter
+  burnin_prop <- control$burnin_prop
+  
+  message("Running model: seso_with_chp")
+  
+  # all input SNPs are treated as IVs (assume upstream filtering)
+  K <- length(b_exp)
+  if (K < 5)
+    warning("Fewer than 5 IVs selected;")
+  
+  # --- compute MoM priors ----------------------------------------------
+  vp <- set_variance_priors(
+    ghat = b_exp, gse = se_exp, Ghat = b_out, Gse = se_out,
+    beta0 = NULL, K = K,
+    Kmin = control$Kmin, Kmax = control$Kmax,
+    rho_ov = control$rho_ov,
+    c_gamma = control$c_gamma, c_theta = control$c_theta,
+    global_mean_gamma = control$global_mean_gamma,
+    global_mean_theta = control$global_mean_theta,
+    hybrid = control$hybrid, kappa_hybrid = control$kappa_hybrid,
+    z_thresh = control$z_thresh, trim = control$trim,
+    kappa_gamma = control$kappa_gamma, kappa_theta = control$kappa_theta
+  )
+  
+  # --- initialize MCMC traces ------------------------------------------
+  start_val <- init_setup_seso_with_chp(
+    niter = niter, K = K,
+    alpha_init = 1,                       # default in original script
+    beta_init = vp$beta0,                 # GLS estimate as starting point
+    sigma_gamma_init = sqrt(vp$gamma$prior_mean),
+    sigma_theta_init = sqrt(vp$theta$prior_mean),
+    q_init = 0.1
+  )
+  
+  # --- run Gibbs sampler (C++) -----------------------------------------
+  if (verbose) message(sprintf("Gibbs sampling: niter=%d, burn-in=%d",
+                               niter, floor(niter * burnin_prop)))
+  res <- gibbs_seso_with_chp_cpp(
+    niter = niter, K = K,
+    beta_tk = start_val$beta_tk,
+    alpha_tk = start_val$alpha_tk,
+    eta_tk = start_val$eta_tk,
+    theta_tk = start_val$theta_tk,
+    gamma_tk = start_val$gamma_tk,
+    q_tk = start_val$q_tk,
+    Gamma_hat = b_out, gamma_hat = b_exp,
+    s2_hat_Gamma = se_out^2, s2_hat_gamma = se_exp^2,
+    sigma2_gamma_tk = start_val$sigma2_gamma_tk,
+    sigma2_theta_tk = start_val$sigma2_theta_tk,
+    a_gamma = vp$gamma$a, b_gamma = vp$gamma$b,
+    a_theta = vp$theta$a, b_theta = vp$theta$b,
+    a_q = 1.0, b_q = 1.0     # uniform Beta(1,1) prior on q
+  )
+  
+  # --- post-processing with label-switching correction -----------------
+  flip <- label_flip(niter, res)
+  pval <- 2 * (1 - stats::pnorm(abs(flip$b_mean / flip$b_sd)))
+  
+  if (verbose) {
+    cat("\n--- Results (seso_with_chp) ---\n")
+    cat(sprintf("Estimated Causal Effect (Beta): %.4f\n", flip$b_mean))
+    cat(sprintf("Standard Error: %.4f\n", flip$b_sd))
+    cat(sprintf("P-value: %.4g\n", pval))
+    cat(sprintf("95%% Empirical CI: [%.4f, %.4f]\n", flip$bci[1], flip$bci[2]))
+    cat(sprintf("Posterior CHP proportion (q): %.3f%s\n",
+                flip$qq, if (flip$qq > 0.5) " (labels flipped)" else ""))
+  }
+  
+  list(est = flip$b_mean, se = flip$b_sd, pval = pval,
+       ci = flip$bci, q = flip$qq,
+       model = "seso_with_chp", n_iv = K)
 }

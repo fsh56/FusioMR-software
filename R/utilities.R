@@ -38,3 +38,25 @@ print_summary <- function(s) {
   cat(sprintf("95%% Normal CI:    [%.4f, %.4f]\n",
               s$ci_normal[1], s$ci_normal[2]))
 }
+
+# Label-switching correction for seso_with_chp.
+# When q > 0.5, the eta = 0 / eta = 1 labels have flipped during MCMC,
+# so the true causal effect lives on (beta + alpha) rather than beta.
+label_flip <- function(niter, res) {
+  ids <- (floor(niter / 2) + 1):niter
+  qq <- mean(res$q_tk[ids], na.rm = TRUE)
+  
+  if (qq > 0.5) {
+    # labels flipped: true beta is beta + alpha
+    samples <- res$beta_tk[ids] + res$alpha_tk[ids]
+  } else {
+    # labels normal: true beta is beta
+    samples <- res$beta_tk[ids]
+  }
+  
+  list(qq = qq,
+       b_mean = mean(samples, na.rm = TRUE),
+       b_sd   = stats::sd(samples, na.rm = TRUE),
+       bci    = stats::quantile(samples, c(0.025, 0.975), na.rm = TRUE),
+       draws  = samples)
+}

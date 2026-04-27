@@ -36,9 +36,40 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// gibbs_seso_with_chp_cpp
+List gibbs_seso_with_chp_cpp(int niter, int K, NumericVector beta_tk, NumericVector alpha_tk, NumericMatrix eta_tk, NumericMatrix theta_tk, NumericMatrix gamma_tk, NumericVector q_tk, NumericVector Gamma_hat, NumericVector gamma_hat, NumericVector s2_hat_Gamma, NumericVector s2_hat_gamma, NumericVector sigma2_gamma_tk, NumericVector sigma2_theta_tk, double a_gamma, double b_gamma, double a_theta, double b_theta, double a_q, double b_q);
+RcppExport SEXP _FusioMRdev_gibbs_seso_with_chp_cpp(SEXP niterSEXP, SEXP KSEXP, SEXP beta_tkSEXP, SEXP alpha_tkSEXP, SEXP eta_tkSEXP, SEXP theta_tkSEXP, SEXP gamma_tkSEXP, SEXP q_tkSEXP, SEXP Gamma_hatSEXP, SEXP gamma_hatSEXP, SEXP s2_hat_GammaSEXP, SEXP s2_hat_gammaSEXP, SEXP sigma2_gamma_tkSEXP, SEXP sigma2_theta_tkSEXP, SEXP a_gammaSEXP, SEXP b_gammaSEXP, SEXP a_thetaSEXP, SEXP b_thetaSEXP, SEXP a_qSEXP, SEXP b_qSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type niter(niterSEXP);
+    Rcpp::traits::input_parameter< int >::type K(KSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type beta_tk(beta_tkSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type alpha_tk(alpha_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type eta_tk(eta_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type theta_tk(theta_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gamma_tk(gamma_tkSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type q_tk(q_tkSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Gamma_hat(Gamma_hatSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type gamma_hat(gamma_hatSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type s2_hat_Gamma(s2_hat_GammaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type s2_hat_gamma(s2_hat_gammaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type sigma2_gamma_tk(sigma2_gamma_tkSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type sigma2_theta_tk(sigma2_theta_tkSEXP);
+    Rcpp::traits::input_parameter< double >::type a_gamma(a_gammaSEXP);
+    Rcpp::traits::input_parameter< double >::type b_gamma(b_gammaSEXP);
+    Rcpp::traits::input_parameter< double >::type a_theta(a_thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type b_theta(b_thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type a_q(a_qSEXP);
+    Rcpp::traits::input_parameter< double >::type b_q(b_qSEXP);
+    rcpp_result_gen = Rcpp::wrap(gibbs_seso_with_chp_cpp(niter, K, beta_tk, alpha_tk, eta_tk, theta_tk, gamma_tk, q_tk, Gamma_hat, gamma_hat, s2_hat_Gamma, s2_hat_gamma, sigma2_gamma_tk, sigma2_theta_tk, a_gamma, b_gamma, a_theta, b_theta, a_q, b_q));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_FusioMRdev_gibbs_seso_uhp_only_cpp", (DL_FUNC) &_FusioMRdev_gibbs_seso_uhp_only_cpp, 15},
+    {"_FusioMRdev_gibbs_seso_with_chp_cpp", (DL_FUNC) &_FusioMRdev_gibbs_seso_with_chp_cpp, 20},
     {NULL, NULL, 0}
 };
 
