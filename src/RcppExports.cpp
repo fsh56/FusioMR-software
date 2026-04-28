@@ -11,6 +11,35 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// gibbs_semo_uhp_only_cpp
+List gibbs_semo_uhp_only_cpp(int niter, int K, arma::vec beta_1_tk, arma::vec beta_2_tk, NumericMatrix theta_1_tk, NumericMatrix theta_2_tk, NumericMatrix gamma_tk, NumericVector sigma2_gamma_tk, arma::vec Gamma_hat_1, arma::vec Gamma_hat_2, arma::vec s2_hat_Gamma_1, arma::vec s2_hat_Gamma_2, arma::vec gamma_hat, arma::vec s2_hat_gamma, double a_gamma, double b_gamma, arma::mat Sigma_theta_init, double nu_theta, arma::mat Phi_theta);
+RcppExport SEXP _FusioMRdev_gibbs_semo_uhp_only_cpp(SEXP niterSEXP, SEXP KSEXP, SEXP beta_1_tkSEXP, SEXP beta_2_tkSEXP, SEXP theta_1_tkSEXP, SEXP theta_2_tkSEXP, SEXP gamma_tkSEXP, SEXP sigma2_gamma_tkSEXP, SEXP Gamma_hat_1SEXP, SEXP Gamma_hat_2SEXP, SEXP s2_hat_Gamma_1SEXP, SEXP s2_hat_Gamma_2SEXP, SEXP gamma_hatSEXP, SEXP s2_hat_gammaSEXP, SEXP a_gammaSEXP, SEXP b_gammaSEXP, SEXP Sigma_theta_initSEXP, SEXP nu_thetaSEXP, SEXP Phi_thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type niter(niterSEXP);
+    Rcpp::traits::input_parameter< int >::type K(KSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type beta_1_tk(beta_1_tkSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type beta_2_tk(beta_2_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type theta_1_tk(theta_1_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type theta_2_tk(theta_2_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gamma_tk(gamma_tkSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type sigma2_gamma_tk(sigma2_gamma_tkSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Gamma_hat_1(Gamma_hat_1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Gamma_hat_2(Gamma_hat_2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type s2_hat_Gamma_1(s2_hat_Gamma_1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type s2_hat_Gamma_2(s2_hat_Gamma_2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type gamma_hat(gamma_hatSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type s2_hat_gamma(s2_hat_gammaSEXP);
+    Rcpp::traits::input_parameter< double >::type a_gamma(a_gammaSEXP);
+    Rcpp::traits::input_parameter< double >::type b_gamma(b_gammaSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Sigma_theta_init(Sigma_theta_initSEXP);
+    Rcpp::traits::input_parameter< double >::type nu_theta(nu_thetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Phi_theta(Phi_thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(gibbs_semo_uhp_only_cpp(niter, K, beta_1_tk, beta_2_tk, theta_1_tk, theta_2_tk, gamma_tk, sigma2_gamma_tk, Gamma_hat_1, Gamma_hat_2, s2_hat_Gamma_1, s2_hat_Gamma_2, gamma_hat, s2_hat_gamma, a_gamma, b_gamma, Sigma_theta_init, nu_theta, Phi_theta));
+    return rcpp_result_gen;
+END_RCPP
+}
 // gibbs_seso_uhp_only_cpp
 List gibbs_seso_uhp_only_cpp(int niter, int K, NumericVector beta_tk, NumericMatrix theta_tk, NumericMatrix gamma_tk, NumericVector sigma2_gamma_tk, NumericVector sigma2_theta_tk, NumericVector Gamma_hat, NumericVector gamma_hat, NumericVector s2_hat_Gamma, NumericVector s2_hat_gamma, double a_gamma, double b_gamma, double a_theta, double b_theta);
 RcppExport SEXP _FusioMRdev_gibbs_seso_uhp_only_cpp(SEXP niterSEXP, SEXP KSEXP, SEXP beta_tkSEXP, SEXP theta_tkSEXP, SEXP gamma_tkSEXP, SEXP sigma2_gamma_tkSEXP, SEXP sigma2_theta_tkSEXP, SEXP Gamma_hatSEXP, SEXP gamma_hatSEXP, SEXP s2_hat_GammaSEXP, SEXP s2_hat_gammaSEXP, SEXP a_gammaSEXP, SEXP b_gammaSEXP, SEXP a_thetaSEXP, SEXP b_thetaSEXP) {
@@ -68,6 +97,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_FusioMRdev_gibbs_semo_uhp_only_cpp", (DL_FUNC) &_FusioMRdev_gibbs_semo_uhp_only_cpp, 19},
     {"_FusioMRdev_gibbs_seso_uhp_only_cpp", (DL_FUNC) &_FusioMRdev_gibbs_seso_uhp_only_cpp, 15},
     {"_FusioMRdev_gibbs_seso_with_chp_cpp", (DL_FUNC) &_FusioMRdev_gibbs_seso_with_chp_cpp, 20},
     {NULL, NULL, 0}
