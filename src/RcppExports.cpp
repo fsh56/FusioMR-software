@@ -11,6 +11,44 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// gibbs_memo_joint_cpp
+List gibbs_memo_joint_cpp(int niter, int K, arma::vec beta_1_tk, arma::vec beta_2_tk, arma::vec alpha_1_tk, arma::vec alpha_2_tk, NumericMatrix eta_1_tk, NumericMatrix eta_2_tk, NumericMatrix theta_1_tk, NumericMatrix theta_2_tk, NumericMatrix gamma_1_tk, NumericMatrix gamma_2_tk, NumericMatrix pst_tk, arma::vec Gamma_hat_1, arma::vec gamma_hat_1, arma::vec s2_hat_Gamma_1, arma::vec s2_hat_gamma_1, arma::vec Gamma_hat_2, arma::vec gamma_hat_2, arma::vec s2_hat_Gamma_2, arma::vec s2_hat_gamma_2, arma::mat Sigma_gamma_init, arma::mat Sigma_theta_init, double m_gamma, arma::mat V_gamma, double m_theta, arma::mat V_theta, arma::vec cc);
+RcppExport SEXP _FusioMRdev_gibbs_memo_joint_cpp(SEXP niterSEXP, SEXP KSEXP, SEXP beta_1_tkSEXP, SEXP beta_2_tkSEXP, SEXP alpha_1_tkSEXP, SEXP alpha_2_tkSEXP, SEXP eta_1_tkSEXP, SEXP eta_2_tkSEXP, SEXP theta_1_tkSEXP, SEXP theta_2_tkSEXP, SEXP gamma_1_tkSEXP, SEXP gamma_2_tkSEXP, SEXP pst_tkSEXP, SEXP Gamma_hat_1SEXP, SEXP gamma_hat_1SEXP, SEXP s2_hat_Gamma_1SEXP, SEXP s2_hat_gamma_1SEXP, SEXP Gamma_hat_2SEXP, SEXP gamma_hat_2SEXP, SEXP s2_hat_Gamma_2SEXP, SEXP s2_hat_gamma_2SEXP, SEXP Sigma_gamma_initSEXP, SEXP Sigma_theta_initSEXP, SEXP m_gammaSEXP, SEXP V_gammaSEXP, SEXP m_thetaSEXP, SEXP V_thetaSEXP, SEXP ccSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type niter(niterSEXP);
+    Rcpp::traits::input_parameter< int >::type K(KSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type beta_1_tk(beta_1_tkSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type beta_2_tk(beta_2_tkSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type alpha_1_tk(alpha_1_tkSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type alpha_2_tk(alpha_2_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type eta_1_tk(eta_1_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type eta_2_tk(eta_2_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type theta_1_tk(theta_1_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type theta_2_tk(theta_2_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gamma_1_tk(gamma_1_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gamma_2_tk(gamma_2_tkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type pst_tk(pst_tkSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Gamma_hat_1(Gamma_hat_1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type gamma_hat_1(gamma_hat_1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type s2_hat_Gamma_1(s2_hat_Gamma_1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type s2_hat_gamma_1(s2_hat_gamma_1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Gamma_hat_2(Gamma_hat_2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type gamma_hat_2(gamma_hat_2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type s2_hat_Gamma_2(s2_hat_Gamma_2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type s2_hat_gamma_2(s2_hat_gamma_2SEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Sigma_gamma_init(Sigma_gamma_initSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Sigma_theta_init(Sigma_theta_initSEXP);
+    Rcpp::traits::input_parameter< double >::type m_gamma(m_gammaSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type V_gamma(V_gammaSEXP);
+    Rcpp::traits::input_parameter< double >::type m_theta(m_thetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type V_theta(V_thetaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type cc(ccSEXP);
+    rcpp_result_gen = Rcpp::wrap(gibbs_memo_joint_cpp(niter, K, beta_1_tk, beta_2_tk, alpha_1_tk, alpha_2_tk, eta_1_tk, eta_2_tk, theta_1_tk, theta_2_tk, gamma_1_tk, gamma_2_tk, pst_tk, Gamma_hat_1, gamma_hat_1, s2_hat_Gamma_1, s2_hat_gamma_1, Gamma_hat_2, gamma_hat_2, s2_hat_Gamma_2, s2_hat_gamma_2, Sigma_gamma_init, Sigma_theta_init, m_gamma, V_gamma, m_theta, V_theta, cc));
+    return rcpp_result_gen;
+END_RCPP
+}
 // gibbs_semo_uhp_only_cpp
 List gibbs_semo_uhp_only_cpp(int niter, int K, arma::vec beta_1_tk, arma::vec beta_2_tk, NumericMatrix theta_1_tk, NumericMatrix theta_2_tk, NumericMatrix gamma_tk, NumericVector sigma2_gamma_tk, arma::vec Gamma_hat_1, arma::vec Gamma_hat_2, arma::vec s2_hat_Gamma_1, arma::vec s2_hat_Gamma_2, arma::vec gamma_hat, arma::vec s2_hat_gamma, double a_gamma, double b_gamma, arma::mat Sigma_theta_init, double nu_theta, arma::mat Phi_theta);
 RcppExport SEXP _FusioMRdev_gibbs_semo_uhp_only_cpp(SEXP niterSEXP, SEXP KSEXP, SEXP beta_1_tkSEXP, SEXP beta_2_tkSEXP, SEXP theta_1_tkSEXP, SEXP theta_2_tkSEXP, SEXP gamma_tkSEXP, SEXP sigma2_gamma_tkSEXP, SEXP Gamma_hat_1SEXP, SEXP Gamma_hat_2SEXP, SEXP s2_hat_Gamma_1SEXP, SEXP s2_hat_Gamma_2SEXP, SEXP gamma_hatSEXP, SEXP s2_hat_gammaSEXP, SEXP a_gammaSEXP, SEXP b_gammaSEXP, SEXP Sigma_theta_initSEXP, SEXP nu_thetaSEXP, SEXP Phi_thetaSEXP) {
@@ -97,6 +135,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_FusioMRdev_gibbs_memo_joint_cpp", (DL_FUNC) &_FusioMRdev_gibbs_memo_joint_cpp, 28},
     {"_FusioMRdev_gibbs_semo_uhp_only_cpp", (DL_FUNC) &_FusioMRdev_gibbs_semo_uhp_only_cpp, 19},
     {"_FusioMRdev_gibbs_seso_uhp_only_cpp", (DL_FUNC) &_FusioMRdev_gibbs_seso_uhp_only_cpp, 15},
     {"_FusioMRdev_gibbs_seso_with_chp_cpp", (DL_FUNC) &_FusioMRdev_gibbs_seso_with_chp_cpp, 20},

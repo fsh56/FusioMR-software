@@ -60,3 +60,29 @@ label_flip <- function(niter, res) {
        bci    = stats::quantile(samples, c(0.025, 0.975), na.rm = TRUE),
        draws  = samples)
 }
+
+# Label-switching correction for memo (joint 2-outcome).
+# When q_j > 0.5, the eta_j labels have flipped during MCMC,
+# so the true causal effect for outcome j is (beta_j + alpha_j).
+label_flip_joint <- function(niter, res) {
+  ids <- (floor(niter / 2) + 1):niter
+  p00 <- res$pst_tk[ids, 1]
+  p01 <- res$pst_tk[ids, 2]
+  p10 <- res$pst_tk[ids, 3]
+  p11 <- res$pst_tk[ids, 4]
+  qq1 <- mean(p10 + p11, na.rm = TRUE)
+  qq2 <- mean(p01 + p11, na.rm = TRUE)
+  
+  draws_1 <- if (qq1 > 0.5) res$beta_1_tk[ids] + res$alpha_1_tk[ids]
+  else           res$beta_1_tk[ids]
+  draws_2 <- if (qq2 > 0.5) res$beta_2_tk[ids] + res$alpha_2_tk[ids]
+  else           res$beta_2_tk[ids]
+  
+  list(qq1 = qq1, qq2 = qq2,
+       b1_mean = mean(draws_1, na.rm = TRUE),
+       b1_sd   = stats::sd(draws_1, na.rm = TRUE),
+       b2_mean = mean(draws_2, na.rm = TRUE),
+       b2_sd   = stats::sd(draws_2, na.rm = TRUE),
+       bci1 = stats::quantile(draws_1, c(0.025, 0.975), na.rm = TRUE),
+       bci2 = stats::quantile(draws_2, c(0.025, 0.975), na.rm = TRUE))
+}
