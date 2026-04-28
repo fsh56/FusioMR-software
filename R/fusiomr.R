@@ -18,12 +18,11 @@
 #'
 #' @return A list with components
 #' \describe{
-#'   \item{est}{Posterior mean of the causal effect.}
-#'   \item{se}{Posterior SD of the causal effect.}
-#'   \item{pval}{Two-sided p-value from a normal approximation.}
+#'   \item{est}{causal effect estimation}
+#'   \item{se}{sd of the causal effect.}
+#'   \item{pval}{two-sided p-value}
 #'   \item{ci}{95\% empirical credible interval.}
 #'   \item{model}{The model used.}
-#'   \item{n_iv}{Number of IVs after selection.}
 #' }
 #'
 #' @export
@@ -34,10 +33,9 @@
 #' K <- 50
 #' b_exp  <- rnorm(K, 0, 0.1);  se_exp <- rep(0.01, K)
 #' b_out  <- 0.3 * b_exp + rnorm(K, 0, 0.01); se_out <- rep(0.01, K)
-#' fit <- fusiomr(b_exp, se_exp, b_out, se_out,
-#'                model = "seso_uhp_only", 
-#'                control = parameter_control(niter=2000))
-#' fit$est; fit$ci
+#' model <- fusiomr(b_exp, se_exp, b_out, se_out,
+#'                model = "seso_uhp_only")
+#' model$est; model$se; model$ci;
 #' }
 fusiomr <- function(b_exp, se_exp, b_out, se_out,
                     model = c("seso_uhp_only", "seso_with_chp", "semo", "memo"),
@@ -93,31 +91,31 @@ fusiomr <- function(b_exp, se_exp, b_out, se_out,
   if (burnin_prop < 0 || burnin_prop >= 1)
     stop("control$burnin_prop must be in [0, 1).")
   
-  # model1
+  # model1: seso_uhp_only
   if (model == "seso_uhp_only") {
     return(fit_seso_uhp_only(b_exp, se_exp, b_out, se_out,
                              control = control, verbose = verbose))
   }
   
-  # model2
+  # model2: seso_with_chp
   if (model == "seso_with_chp") {
     return(fit_seso_with_chp(b_exp, se_exp, b_out, se_out,
                              control = control, verbose = verbose))
   }
   
-  # model3
+  # model3: semo
   if (model == "semo") {
     return(fit_semo(b_exp, se_exp, b_out, se_out,
                     control = control, verbose = verbose))
   }
   
-  # model4
+  # model4: memo
   if (model == "memo") {
     return(fit_memo(b_exp, se_exp, b_out, se_out,
                     control = control, verbose = verbose))
   }
   
-  stop(sprintf("Model '%s' is not yet implemented.", model))
+  stop(sprintf("Model '%s' is not available. Enter correct model name!", model))
 }
 
   
@@ -135,16 +133,25 @@ fit_seso_uhp_only <- function(b_exp, se_exp, b_out, se_out,
   
   # --- compute MoM priors on the input data------------
   vp <- set_variance_priors(
-    ghat = b_exp, gse = se_exp, Ghat = b_out, Gse = se_out,
-    beta0 = NULL, K = K,
-    Kmin = control$Kmin, Kmax = control$Kmax,
+    ghat = b_exp, 
+    gse = se_exp, 
+    Ghat = b_out, 
+    Gse = se_out,
+    beta0 = NULL, 
+    K = K,
+    Kmin = control$Kmin, 
+    Kmax = control$Kmax,
     rho_ov = control$rho_ov,
-    c_gamma = control$c_gamma, c_theta = control$c_theta,
+    c_gamma = control$c_gamma, 
+    c_theta = control$c_theta,
     global_mean_gamma = control$global_mean_gamma,
     global_mean_theta = control$global_mean_theta,
-    hybrid = control$hybrid, kappa_hybrid = control$kappa_hybrid,
-    z_thresh = control$z_thresh, trim = control$trim,
-    kappa_gamma = control$kappa_gamma, kappa_theta = control$kappa_theta
+    hybrid = control$hybrid, 
+    kappa_hybrid = control$kappa_hybrid,
+    z_thresh = control$z_thresh, 
+    trim = control$trim,
+    kappa_gamma = control$kappa_gamma, 
+    kappa_theta = control$kappa_theta
   )
   
   # --- initialize MCMC traces -------------------------------------------
@@ -155,20 +162,25 @@ fit_seso_uhp_only <- function(b_exp, se_exp, b_out, se_out,
     sigma_theta_init = sqrt(vp$theta$prior_mean)
   )
   
-  # --- run Gibbs sampler (C++) ------------------------------------------
+  # --- run Gibbs sampler ------------------------------------------
   if (verbose) message(sprintf("Gibbs sampling: niter=%d, burn-in=%d",
                                niter, floor(niter * burnin_prop)))
   res <- gibbs_seso_uhp_only_cpp(
-    niter = niter, K = K,
+    niter = niter, 
+    K = K,
     beta_tk = start_val$beta_tk,
     theta_tk = start_val$theta_tk,
     gamma_tk = start_val$gamma_tk,
     sigma2_gamma_tk = start_val$sigma2_gamma_tk,
     sigma2_theta_tk = start_val$sigma2_theta_tk,
-    Gamma_hat = b_out, gamma_hat = b_exp,
-    s2_hat_Gamma = se_out^2, s2_hat_gamma = se_exp^2,
-    a_gamma = vp$gamma$a, b_gamma = vp$gamma$b,
-    a_theta = vp$theta$a, b_theta = vp$theta$b
+    Gamma_hat = b_out, 
+    gamma_hat = b_exp,
+    s2_hat_Gamma = se_out^2, 
+    s2_hat_gamma = se_exp^2,
+    a_gamma = vp$gamma$a, 
+    b_gamma = vp$gamma$b,
+    a_theta = vp$theta$a, 
+    b_theta = vp$theta$b
   )
   
   # --- post-burnin summary ----------------------------------------------
@@ -192,54 +204,68 @@ fit_seso_with_chp <- function(b_exp, se_exp, b_out, se_out,
   burnin_prop <- control$burnin_prop
   
   message("Running model: seso_with_chp")
-  
-  # all input SNPs are treated as IVs (assume upstream filtering)
+
   K <- length(b_exp)
   if (K < 5)
     warning("Fewer than 5 IVs selected;")
   
   # --- compute MoM priors ----------------------------------------------
   vp <- set_variance_priors(
-    ghat = b_exp, gse = se_exp, Ghat = b_out, Gse = se_out,
-    beta0 = NULL, K = K,
-    Kmin = control$Kmin, Kmax = control$Kmax,
+    ghat = b_exp, 
+    gse = se_exp, 
+    Ghat = b_out, 
+    Gse = se_out,
+    beta0 = NULL, 
+    K = K,
+    Kmin = control$Kmin, 
+    Kmax = control$Kmax,
     rho_ov = control$rho_ov,
-    c_gamma = control$c_gamma, c_theta = control$c_theta,
+    c_gamma = control$c_gamma, 
+    c_theta = control$c_theta,
     global_mean_gamma = control$global_mean_gamma,
     global_mean_theta = control$global_mean_theta,
-    hybrid = control$hybrid, kappa_hybrid = control$kappa_hybrid,
-    z_thresh = control$z_thresh, trim = control$trim,
-    kappa_gamma = control$kappa_gamma, kappa_theta = control$kappa_theta
+    hybrid = control$hybrid, 
+    kappa_hybrid = control$kappa_hybrid,
+    z_thresh = control$z_thresh, 
+    trim = control$trim,
+    kappa_gamma = control$kappa_gamma, 
+    kappa_theta = control$kappa_theta
   )
   
   # --- initialize MCMC traces ------------------------------------------
   start_val <- init_setup_seso_with_chp(
     niter = niter, K = K,
-    alpha_init = 1,                       # default in original script
-    beta_init = vp$beta0,                 # GLS estimate as starting point
+    alpha_init = 1,  
+    beta_init = vp$beta0,
     sigma_gamma_init = sqrt(vp$gamma$prior_mean),
     sigma_theta_init = sqrt(vp$theta$prior_mean),
     q_init = 0.1
   )
   
-  # --- run Gibbs sampler (C++) -----------------------------------------
+  # --- run Gibbs sampler-----------------------------------------
   if (verbose) message(sprintf("Gibbs sampling: niter=%d, burn-in=%d",
                                niter, floor(niter * burnin_prop)))
   res <- gibbs_seso_with_chp_cpp(
-    niter = niter, K = K,
+    niter = niter, 
+    K = K,
     beta_tk = start_val$beta_tk,
     alpha_tk = start_val$alpha_tk,
     eta_tk = start_val$eta_tk,
     theta_tk = start_val$theta_tk,
     gamma_tk = start_val$gamma_tk,
     q_tk = start_val$q_tk,
-    Gamma_hat = b_out, gamma_hat = b_exp,
-    s2_hat_Gamma = se_out^2, s2_hat_gamma = se_exp^2,
+    Gamma_hat = b_out, 
+    gamma_hat = b_exp,
+    s2_hat_Gamma = se_out^2, 
+    s2_hat_gamma = se_exp^2,
     sigma2_gamma_tk = start_val$sigma2_gamma_tk,
     sigma2_theta_tk = start_val$sigma2_theta_tk,
-    a_gamma = vp$gamma$a, b_gamma = vp$gamma$b,
-    a_theta = vp$theta$a, b_theta = vp$theta$b,
-    a_q = 1.0, b_q = 1.0     # uniform Beta(1,1) prior on q
+    a_gamma = vp$gamma$a, 
+    b_gamma = vp$gamma$b,
+    a_theta = vp$theta$a, 
+    b_theta = vp$theta$b,
+    a_q = 1.0, 
+    b_q = 1.0
   )
   
   # --- post-processing with label-switching correction -----------------
@@ -271,49 +297,64 @@ fit_semo <- function(b_exp, se_exp, b_out, se_out,
   
   if (!is.matrix(b_out) || ncol(b_out) != 2)
     stop("Model 'semo' requires b_out and se_out to be K x 2 matrices.")
-  
   K <- length(b_exp)
   if (K < 5)
     warning("Fewer than 5 IVs selected;")
   
   # --- compute MoM priors (bivariate outcome version) -------------------
   vp <- set_variance_priors_m2(
-    ghat = b_exp, gse = se_exp,
-    Ghat_mat = b_out, Gse_mat = se_out,
-    beta0 = NULL, K = K,
-    Kmin = control$Kmin, Kmax = control$Kmax,
-    rho12 = 0, rho1g = control$rho_ov, rho2g = control$rho_ov,
-    c_gamma = control$c_gamma, c_theta = control$c_theta,
+    ghat = b_exp, 
+    gse = se_exp,
+    Ghat_mat = b_out, 
+    Gse_mat = se_out,
+    beta0 = NULL, 
+    K = K,
+    Kmin = control$Kmin, 
+    Kmax = control$Kmax,
+    rho12 = 0, 
+    rho1g = control$rho_ov, 
+    rho2g = control$rho_ov,
+    c_gamma = control$c_gamma, 
+    c_theta = control$c_theta,
     global_mean_gamma = control$global_mean_gamma,
     global_mean_theta = control$global_mean_theta,
-    hybrid = control$hybrid, kappa_hybrid = control$kappa_hybrid,
-    z_thresh = control$z_thresh, trim = control$trim,
-    kappa_gamma = control$kappa_gamma, kappa_theta = control$kappa_theta
+    hybrid = control$hybrid, 
+    kappa_hybrid = control$kappa_hybrid,
+    z_thresh = control$z_thresh, 
+    trim = control$trim,
+    kappa_gamma = control$kappa_gamma, 
+    kappa_theta = control$kappa_theta
   )
   
   # --- initialize MCMC traces ------------------------------------------
   start_val <- init_setup_semo_uhp_only(
-    niter = niter, K = K,
+    niter = niter, 
+    K = K,
     beta_1_init = vp$beta0[1],
     beta_2_init = vp$beta0[2],
     sigma_gamma_init = sqrt(vp$gamma$prior_mean)
   )
   
-  # --- run Gibbs sampler (C++) -----------------------------------------
+  # --- run Gibbs sampler-----------------------------------------
   if (verbose) message(sprintf("Gibbs sampling: niter=%d, burn-in=%d",
                                niter, floor(niter * burnin_prop)))
   res <- gibbs_semo_uhp_only_cpp(
-    niter = niter, K = K,
+    niter = niter, 
+    K = K,
     beta_1_tk = start_val$beta_1_tk,
     beta_2_tk = start_val$beta_2_tk,
     theta_1_tk = start_val$theta_1_tk,
     theta_2_tk = start_val$theta_2_tk,
     gamma_tk = start_val$gamma_tk,
     sigma2_gamma_tk = start_val$sigma2_gamma_tk,
-    Gamma_hat_1 = b_out[, 1], Gamma_hat_2 = b_out[, 2],
-    s2_hat_Gamma_1 = se_out[, 1]^2, s2_hat_Gamma_2 = se_out[, 2]^2,
-    gamma_hat = b_exp, s2_hat_gamma = se_exp^2,
-    a_gamma = vp$gamma$a, b_gamma = vp$gamma$b,
+    Gamma_hat_1 = b_out[, 1], 
+    Gamma_hat_2 = b_out[, 2],
+    s2_hat_Gamma_1 = se_out[, 1]^2, 
+    s2_hat_Gamma_2 = se_out[, 2]^2,
+    gamma_hat = b_exp, 
+    s2_hat_gamma = se_exp^2,
+    a_gamma = vp$gamma$a, 
+    b_gamma = vp$gamma$b,
     Sigma_theta_init = vp$theta$prior_mean,
     nu_theta = vp$theta$nu,
     Phi_theta = vp$theta$Phi
@@ -345,7 +386,6 @@ fit_memo <- function(b_exp, se_exp, b_out, se_out,
   burnin_prop <- control$burnin_prop
   
   message("Running model: memo")
-  
   if (!is.matrix(b_exp) || ncol(b_exp) != 2)
     stop("Model 'memo' requires b_exp and se_exp to be K x 2 matrices.")
   if (!is.matrix(b_out) || ncol(b_out) != 2)
@@ -356,36 +396,48 @@ fit_memo <- function(b_exp, se_exp, b_out, se_out,
   
   # --- compute MoM priors (bivariate exposure x bivariate outcome) -----
   vp <- set_variance_priors_m2x2_diag(
-    ghat_mat = b_exp, gse_mat = se_exp,
-    Ghat_mat = b_out, Gse_mat = se_out,
+    ghat_mat = b_exp, 
+    gse_mat = se_exp,
+    Ghat_mat = b_out, 
+    Gse_mat = se_out,
     B0 = NULL, K = K,
-    Kmin = control$Kmin, Kmax = control$Kmax,
+    Kmin = control$Kmin, 
+    Kmax = control$Kmax,
     rho12 = 0, rho_gg = 0,
     rho_gj = list(c(control$rho_ov, control$rho_ov),
                   c(control$rho_ov, control$rho_ov)),
-    c_gamma = control$c_gamma, c_theta = control$c_theta,
+    c_gamma = control$c_gamma, 
+    c_theta = control$c_theta,
     global_mean_gamma = control$global_mean_gamma,
     global_mean_theta = control$global_mean_theta,
-    hybrid = control$hybrid, kappa_hybrid = control$kappa_hybrid,
-    z_thresh = control$z_thresh, trim = control$trim,
-    kappa_gamma = control$kappa_gamma, kappa_theta = control$kappa_theta
+    hybrid = control$hybrid, 
+    kappa_hybrid = control$kappa_hybrid,
+    z_thresh = control$z_thresh, 
+    trim = control$trim,
+    kappa_gamma = control$kappa_gamma, 
+    kappa_theta = control$kappa_theta
   )
   
   # --- initialize MCMC traces ------------------------------------------
-  pst_init <- c(0.7, 0.1, 0.1, 0.1)   # mostly valid, small CHP probabilities
+  pst_init <- c(0.7, 0.1, 0.1, 0.1)
   start_val <- init_setup_memo(
-    niter = niter, K = K,
-    alpha_1_init = 0.1, alpha_2_init = 0.1,
-    beta_1_init = vp$B0[1], beta_2_init = vp$B0[2],
-    eta_1_init = rep(0, K), eta_2_init = rep(0, K),
+    niter = niter, 
+    K = K,
+    alpha_1_init = 0.1, 
+    alpha_2_init = 0.1,
+    beta_1_init = vp$B0[1], 
+    beta_2_init = vp$B0[2],
+    eta_1_init = rep(0, K), 
+    eta_2_init = rep(0, K),
     pst_init = pst_init
   )
   
-  # --- run Gibbs sampler (C++) -----------------------------------------
+  # --- run Gibbs sampler-----------------------------------------
   if (verbose) message(sprintf("Gibbs sampling: niter=%d, burn-in=%d",
                                niter, floor(niter * burnin_prop)))
   res <- gibbs_memo_joint_cpp(
-    niter = niter, K = K,
+    niter = niter, 
+    K = K,
     beta_1_tk = start_val$beta_1_tk,
     beta_2_tk = start_val$beta_2_tk,
     alpha_1_tk = start_val$alpha_1_tk,
@@ -397,14 +449,20 @@ fit_memo <- function(b_exp, se_exp, b_out, se_out,
     gamma_1_tk = start_val$gamma_1_tk,
     gamma_2_tk = start_val$gamma_2_tk,
     pst_tk = start_val$pst_tk,
-    Gamma_hat_1 = b_out[, 1], gamma_hat_1 = b_exp[, 1],
-    s2_hat_Gamma_1 = se_out[, 1]^2, s2_hat_gamma_1 = se_exp[, 1]^2,
-    Gamma_hat_2 = b_out[, 2], gamma_hat_2 = b_exp[, 2],
-    s2_hat_Gamma_2 = se_out[, 2]^2, s2_hat_gamma_2 = se_exp[, 2]^2,
+    Gamma_hat_1 = b_out[, 1], 
+    gamma_hat_1 = b_exp[, 1],
+    s2_hat_Gamma_1 = se_out[, 1]^2, 
+    s2_hat_gamma_1 = se_exp[, 1]^2,
+    Gamma_hat_2 = b_out[, 2], 
+    gamma_hat_2 = b_exp[, 2],
+    s2_hat_Gamma_2 = se_out[, 2]^2, 
+    s2_hat_gamma_2 = se_exp[, 2]^2,
     Sigma_gamma_init = vp$gamma$prior_mean,
     Sigma_theta_init = vp$theta$prior_mean,
-    m_gamma = vp$gamma$nu, V_gamma = vp$gamma$Phi,
-    m_theta = vp$theta$nu, V_theta = vp$theta$Phi,
+    m_gamma = vp$gamma$nu, 
+    V_gamma = vp$gamma$Phi,
+    m_theta = vp$theta$nu, 
+    V_theta = vp$theta$Phi,
     cc = c(1, 1, 1, 1)
   )
   
