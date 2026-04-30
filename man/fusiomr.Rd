@@ -36,12 +36,11 @@ fusiomr(
 \value{
 A list with components
 \describe{
-  \item{est}{Posterior mean of the causal effect.}
-  \item{se}{Posterior SD of the causal effect.}
-  \item{pval}{Two-sided p-value from a normal approximation.}
+  \item{est}{causal effect estimation}
+  \item{se}{sd of the causal effect.}
+  \item{pval}{two-sided p-value}
   \item{ci}{95\% empirical credible interval.}
   \item{model}{The model used.}
-  \item{n_iv}{Number of IVs after selection.}
 }
 }
 \description{
@@ -55,9 +54,8 @@ set.seed(1)
 K <- 50
 b_exp  <- rnorm(K, 0, 0.1);  se_exp <- rep(0.01, K)
 b_out  <- 0.3 * b_exp + rnorm(K, 0, 0.01); se_out <- rep(0.01, K)
-fit <- fusiomr(b_exp, se_exp, b_out, se_out,
-               model = "seso_uhp_only", 
-               control = parameter_control(niter=2000))
-fit$est; fit$ci
+model <- fusiomr(b_exp, se_exp, b_out, se_out,
+               model = "seso_uhp_only")
+model$est; model$se; model$ci;
 }
 }

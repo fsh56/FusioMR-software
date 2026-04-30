@@ -91,6 +91,16 @@ fusiomr <- function(b_exp, se_exp, b_out, se_out,
   if (burnin_prop < 0 || burnin_prop >= 1)
     stop("control$burnin_prop must be in [0, 1).")
   
+  # hybrid empirical-Bayes mode is reserved for a future multi-region
+  # workflow (see roadmap in NEWS / parameter_control documentation).
+  # Block it explicitly to avoid silent misuse.
+  if (isTRUE(control$hybrid)) {
+    stop("control$hybrid = TRUE is not yet implemented. ",
+         "Hybrid empirical-Bayes mode requires a multi-region workflow ",
+         "that is currently under development. ",
+         "Please use hybrid = FALSE (the default) for single-region analyses.")
+  }
+  
   # model1: seso_uhp_only
   if (model == "seso_uhp_only") {
     return(fit_seso_uhp_only(b_exp, se_exp, b_out, se_out,

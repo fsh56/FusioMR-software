@@ -41,3 +41,17 @@ test_that("parameter_control returns a well-formed list", {
   expect_equal(ctrl$c_gamma, 0.5)
   expect_equal(ctrl$niter, 20000)
 })
+
+test_that("hybrid = TRUE raises a clear error", {
+  set.seed(1)
+  K <- 50
+  b_exp <- rnorm(K, 0, 0.1); se_exp <- rep(0.01, K)
+  b_out <- 0.3 * b_exp + rnorm(K, 0, 0.01); se_out <- rep(0.01, K)
+  
+  expect_error(
+    fusiomr(b_exp, se_exp, b_out, se_out,
+            model = "seso_uhp_only",
+            control = parameter_control(hybrid = TRUE)),
+    "not yet implemented"
+  )
+})
