@@ -91,14 +91,9 @@ fusiomr <- function(b_exp, se_exp, b_out, se_out,
   if (burnin_prop < 0 || burnin_prop >= 1)
     stop("control$burnin_prop must be in [0, 1).")
   
-  # hybrid empirical-Bayes mode is reserved for a future multi-region
-  # workflow (see roadmap in NEWS / parameter_control documentation).
-  # Block it explicitly to avoid silent misuse.
+  # If hybrid is TRUE, validate the required global parameters for the chosen model.
   if (isTRUE(control$hybrid)) {
-    stop("control$hybrid = TRUE is not yet implemented. ",
-         "Hybrid empirical-Bayes mode requires a multi-region workflow ",
-         "that is currently under development. ",
-         "Please use hybrid = FALSE (the default) for single-region analyses.")
+    .check_hybrid_inputs(model, control)
   }
   
   # model1: seso_uhp_only
@@ -328,6 +323,7 @@ fit_semo <- function(b_exp, se_exp, b_out, se_out,
     c_theta = control$c_theta,
     global_mean_gamma = control$global_mean_gamma,
     global_mean_theta = control$global_mean_theta,
+    global_Sigma_theta = control$global_Sigma_theta,
     hybrid = control$hybrid, 
     kappa_hybrid = control$kappa_hybrid,
     z_thresh = control$z_thresh, 
@@ -418,8 +414,8 @@ fit_memo <- function(b_exp, se_exp, b_out, se_out,
                   c(control$rho_ov, control$rho_ov)),
     c_gamma = control$c_gamma, 
     c_theta = control$c_theta,
-    global_mean_gamma = control$global_mean_gamma,
-    global_mean_theta = control$global_mean_theta,
+    global_Sigma_gamma = control$global_Sigma_gamma,
+    global_Sigma_theta = control$global_Sigma_theta,
     hybrid = control$hybrid, 
     kappa_hybrid = control$kappa_hybrid,
     z_thresh = control$z_thresh, 
@@ -503,4 +499,43 @@ fit_memo <- function(b_exp, se_exp, b_out, se_out,
        ci   = rbind(flip$bci1, flip$bci2),
        q    = c(flip$qq1, flip$qq2),
        model = "memo", n_iv = K)
+}
+
+# Internal: validate hybrid-EB global parameters per model.
+.check_hybrid_inputs <- function(model, control) {
+  
+  is_2x2_matrix <- function(x) {
+    is.matrix(x) && is.numeric(x) &&
+      nrow(x) == 2 && ncol(x) == 2 && all(is.finite(x))
+  }
+  is_pos_scalar <- function(x) {
+    is.numeric(x) && length(x) == 1 && is.finite(x) && x > 0
+  }
+  
+  if (model %in% c("seso_uhp_only", "seso_with_chp")) {
+    if (!is_pos_scalar(control$global_mean_gamma) ||
+        !is_pos_scalar(control$global_mean_theta))
+      stop("hybrid = TRUE for model '", model, "' requires both ",
+           "control$global_mean_gamma and control$global_mean_theta ",
+           "as positive scalars. See ?parameter_control.")
+  } else if (model == "semo") {
+    if (!is_pos_scalar(control$global_mean_gamma))
+      stop("hybrid = TRUE for model 'semo' requires ",
+           "control$global_mean_gamma as a positive scalar. ",
+           "See ?parameter_control.")
+    if (!is_2x2_matrix(control$global_Sigma_theta))
+      stop("hybrid = TRUE for model 'semo' requires ",
+           "control$global_Sigma_theta as a 2x2 numeric matrix. ",
+           "See ?parameter_control.")
+  } else if (model == "memo") {
+    if (!is_2x2_matrix(control$global_Sigma_gamma))
+      stop("hybrid = TRUE for model 'memo' requires ",
+           "control$global_Sigma_gamma as a 2x2 numeric matrix. ",
+           "See ?parameter_control.")
+    if (!is_2x2_matrix(control$global_Sigma_theta))
+      stop("hybrid = TRUE for model 'memo' requires ",
+           "control$global_Sigma_theta as a 2x2 numeric matrix. ",
+           "See ?parameter_control.")
+  }
+  invisible(NULL)
 }

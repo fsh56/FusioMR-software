@@ -19,7 +19,9 @@ parameter_control(
   hybrid = FALSE,
   kappa_hybrid = 5,
   global_mean_gamma = NULL,
-  global_mean_theta = NULL
+  global_mean_theta = NULL,
+  global_Sigma_gamma = NULL,
+  global_Sigma_theta = NULL
 )
 }
 \arguments{
@@ -55,6 +57,14 @@ Example: for p=5e-8 two-sided, use \code{qnorm(1 - 5e-8/2)}.}
 toward the global.}
 
 \item{global_mean_gamma, global_mean_theta}{Global EB centers for hybrid mode.}
+
+\item{global_Sigma_gamma}{2x2 numeric matrix. Global empirical-Bayes mean
+of the SNP-effect covariance Sigma_gamma. Required when
+\code{hybrid = TRUE} for the \code{"memo"} model.}
+
+\item{global_Sigma_theta}{2x2 numeric matrix. Global empirical-Bayes mean
+of the pleiotropy covariance Sigma_theta. Required when
+\code{hybrid = TRUE} for the \code{"semo"} or \code{"memo"} model.}
 }
 \value{
 A named list of parameters for more advanced setting.

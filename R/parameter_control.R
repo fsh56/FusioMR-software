@@ -28,7 +28,12 @@
 #' @param kappa_hybrid Pooling control; larger values shrink more
 #'   toward the global.
 #' @param global_mean_gamma,global_mean_theta Global EB centers for hybrid mode.
-#'
+#' @param global_Sigma_gamma 2x2 numeric matrix. Global empirical-Bayes mean
+#'   of the SNP-effect covariance Sigma_gamma. Required when
+#'   \code{hybrid = TRUE} for the \code{"memo"} model.
+#' @param global_Sigma_theta 2x2 numeric matrix. Global empirical-Bayes mean
+#'   of the pleiotropy covariance Sigma_theta. Required when
+#'   \code{hybrid = TRUE} for the \code{"semo"} or \code{"memo"} model.
 #' @return A named list of parameters for more advanced setting.
 #' @export
 #'
@@ -51,7 +56,9 @@ parameter_control <- function(
     hybrid = FALSE,
     kappa_hybrid = 5,
     global_mean_gamma = NULL,
-    global_mean_theta = NULL
+    global_mean_theta = NULL,
+    global_Sigma_gamma = NULL,
+    global_Sigma_theta = NULL
 ) {
   list(
     niter = niter,
@@ -68,6 +75,8 @@ parameter_control <- function(
     hybrid = hybrid, 
     kappa_hybrid = kappa_hybrid,
     global_mean_gamma = global_mean_gamma,
-    global_mean_theta = global_mean_theta
+    global_mean_theta = global_mean_theta,
+    global_Sigma_gamma = global_Sigma_gamma,
+    global_Sigma_theta = global_Sigma_theta
   )
 }

@@ -151,15 +151,28 @@ list(
 #'
 #' @keywords internal
 #' @export
-set_variance_priors_m2 <- function(ghat, gse, Ghat_mat, Gse_mat,
-                                   beta0 = NULL, K = NULL,
-                                   Kmin = 5, Kmax = 20,
-                                   rho12 = 0, rho1g = 0, rho2g = 0,
-                                   c_gamma = 0.5, c_theta = 0.8,
-                                   global_mean_gamma = NULL, global_mean_theta = NULL,
-                                   hybrid = FALSE, kappa_hybrid = 5,
-                                   z_thresh = NULL, trim = 0.1,
-                                   kappa_gamma = 1, kappa_theta = 1) {
+set_variance_priors_m2 <- function(ghat, 
+                                   gse, 
+                                   Ghat_mat, 
+                                   Gse_mat,
+                                   beta0 = NULL, 
+                                   K = NULL,
+                                   Kmin = 5, 
+                                   Kmax = 20,
+                                   rho12 = 0, 
+                                   rho1g = 0, 
+                                   rho2g = 0,
+                                   c_gamma = 0.5, 
+                                   c_theta = 0.8,
+                                   global_mean_gamma = NULL, 
+                                   global_mean_theta = NULL,
+                                   global_Sigma_theta = NULL,
+                                   hybrid = FALSE, 
+                                   kappa_hybrid = 5,
+                                   z_thresh = NULL, 
+                                   trim = 0.1,
+                                   kappa_gamma = 1, 
+                                   kappa_theta = 1) {
   
   stopifnot(is.matrix(Ghat_mat), is.matrix(Gse_mat),
             ncol(Ghat_mat) == 2, ncol(Gse_mat) == 2,
@@ -231,12 +244,22 @@ set_variance_priors_m2 <- function(ghat, gse, Ghat_mat, Gse_mat,
   
   # Hybrid EB on diagonals (off-diagonal not pooled)
   if (isTRUE(hybrid)) {
-    if (is.null(global_mean_gamma) || is.null(global_mean_theta))
-      stop("hybrid=TRUE requires global_mean_gamma and global_mean_theta.")
+    # gamma is scalar; theta is now a 2x2 matrix
+    if (is.null(global_mean_gamma))
+        stop("hybrid=TRUE requires global_mean_gamma (scalar).")
+    if (is.null(global_Sigma_theta) || !is.matrix(global_Sigma_theta) ||
+        any(dim(global_Sigma_theta) != c(2, 2)))
+      stop("hybrid=TRUE for semo requires global_Sigma_theta as a 2x2 matrix.")
     eta_w = K / (K + kappa_hybrid)
     m_gamma = eta_w * mom_gamma + (1 - eta_w) * global_mean_gamma
-    if (length(global_mean_theta) == 1) global_mean_theta = rep(global_mean_theta, 2)
-    m_theta_diag = eta_w * mom_theta_diag + (1 - eta_w) * global_mean_theta
+    # blend the entire 2x2 prior mean matrix
+    M_theta_local = matrix(c(mom_theta_diag[1], 
+                             mom_theta_off,
+                             mom_theta_off,
+                             mom_theta_diag[2]), 2, 2)
+    M_theta_blend = eta_w * M_theta_local + (1 - eta_w) * global_Sigma_theta
+    m_theta_diag = c(M_theta_blend[1, 1], M_theta_blend[2, 2])
+    mom_theta_off = M_theta_blend[1, 2]
   } else {
     eta_w = NA
     m_gamma = mom_gamma
@@ -306,15 +329,27 @@ set_variance_priors_m2 <- function(ghat, gse, Ghat_mat, Gse_mat,
 #'
 #' @keywords internal
 #' @export
-set_variance_priors_m2x2_diag <- function(ghat_mat, gse_mat, Ghat_mat, Gse_mat,
-                                          B0 = NULL, K = NULL, Kmin = 5, Kmax = 20,
-                                          rho12 = 0, rho_gg = 0,
+set_variance_priors_m2x2_diag <- function(ghat_mat, 
+                                          gse_mat, 
+                                          Ghat_mat, 
+                                          Gse_mat,
+                                          B0 = NULL, 
+                                          K = NULL, 
+                                          Kmin = 5, 
+                                          Kmax = 20,
+                                          rho12 = 0, 
+                                          rho_gg = 0,
                                           rho_gj = list(c(0, 0), c(0, 0)),
-                                          c_gamma = 0.5, c_theta = 0.8,
-                                          global_mean_gamma = NULL, global_mean_theta = NULL,
-                                          hybrid = FALSE, kappa_hybrid = 5,
-                                          z_thresh = NULL, trim = 0.1,
-                                          kappa_gamma = 1, kappa_theta = 1) {
+                                          c_gamma = 0.5, 
+                                          c_theta = 0.8,
+                                          global_Sigma_gamma = NULL, 
+                                          global_Sigma_theta = NULL,
+                                          hybrid = FALSE, 
+                                          kappa_hybrid = 5,
+                                          z_thresh = NULL, 
+                                          trim = 0.1,
+                                          kappa_gamma = 1, 
+                                          kappa_theta = 1) {
   
   stopifnot(is.matrix(ghat_mat), is.matrix(gse_mat),
             is.matrix(Ghat_mat), is.matrix(Gse_mat),
@@ -400,13 +435,29 @@ set_variance_priors_m2x2_diag <- function(ghat_mat, gse_mat, Ghat_mat, Gse_mat,
   
   # --- Hybrid EB on diagonals --------------------------------------------
   if (isTRUE(hybrid)) {
-    if (is.null(global_mean_gamma) || is.null(global_mean_theta))
-      stop("hybrid=TRUE requires global_mean_gamma and global_mean_theta.")
+    # both gamma and theta are now 2x2 matrices
+    if (is.null(global_Sigma_gamma) || !is.matrix(global_Sigma_gamma) ||
+            any(dim(global_Sigma_gamma) != c(2, 2)))
+      stop("hybrid=TRUE for memo requires global_Sigma_gamma as a 2x2 matrix.")
+    if (is.null(global_Sigma_theta) || !is.matrix(global_Sigma_theta) ||
+        any(dim(global_Sigma_theta) != c(2, 2)))
+      stop("hybrid=TRUE for memo requires global_Sigma_theta as a 2x2 matrix.")
     eta_w = K / (K + kappa_hybrid)
-    if (length(global_mean_gamma) == 1) global_mean_gamma = rep(global_mean_gamma, 2)
-    if (length(global_mean_theta) == 1) global_mean_theta = rep(global_mean_theta, 2)
-    m_gamma_diag = eta_w * mom_gamma_diag + (1 - eta_w) * global_mean_gamma
-    m_theta_diag = eta_w * mom_theta_diag + (1 - eta_w) * global_mean_theta
+    # blend the full 2x2 matrices for both gamma and theta
+    M_gamma_local = matrix(c(mom_gamma_diag[1], 
+                             mom_gamma_off,
+                             mom_gamma_off,    
+                             mom_gamma_diag[2]), 2, 2)
+    M_theta_local = matrix(c(mom_theta_diag[1], 
+                             mom_theta_off,
+                             mom_theta_off,    
+                             mom_theta_diag[2]), 2, 2)
+    M_gamma_blend = eta_w * M_gamma_local + (1 - eta_w) * global_Sigma_gamma
+    M_theta_blend = eta_w * M_theta_local + (1 - eta_w) * global_Sigma_theta
+    m_gamma_diag = c(M_gamma_blend[1, 1], M_gamma_blend[2, 2])
+    mom_gamma_off = M_gamma_blend[1, 2]
+    m_theta_diag = c(M_theta_blend[1, 1], M_theta_blend[2, 2])
+    mom_theta_off = M_theta_blend[1, 2]
   } else {
     eta_w = NA
     m_gamma_diag = mom_gamma_diag
