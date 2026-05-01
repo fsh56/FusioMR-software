@@ -280,7 +280,7 @@ fit_seso_with_chp <- function(b_exp, se_exp, b_out, se_out,
   
   # --- post-processing with label-switching correction -----------------
   flip <- label_flip(niter, res)
-  pval <- 2 * (1 - stats::pnorm(abs(flip$b_mean / flip$b_sd)))
+  pval <- 2 * stats::pnorm(abs(flip$b_mean / flip$b_sd), lower.tail = FALSE)
   
   if (verbose) {
     cat("\n--- Results (seso_with_chp) ---\n")
@@ -478,8 +478,8 @@ fit_memo <- function(b_exp, se_exp, b_out, se_out,
   
   # --- post-processing with joint label-switching correction -----------
   flip <- label_flip_joint(niter, res)
-  pval1 <- 2 * (1 - stats::pnorm(abs(flip$b1_mean / flip$b1_sd)))
-  pval2 <- 2 * (1 - stats::pnorm(abs(flip$b2_mean / flip$b2_sd)))
+  pval1 <- 2 * stats::pnorm(abs(flip$b1_mean / flip$b1_sd), lower.tail = FALSE)
+  pval2 <- 2 * stats::pnorm(abs(flip$b2_mean / flip$b2_sd), lower.tail = FALSE)
   
   if (verbose) {
     cat("\n--- Results (memo) ---\n")

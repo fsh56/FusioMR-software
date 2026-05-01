@@ -3,7 +3,7 @@
 # Select IVs by |Z| p-value threshold on exposure
 get_sel_idx <- function(b_exp, se_exp, p_threshold) {
   z = abs(b_exp / se_exp)
-  p = 2 * (1 - stats::pnorm(z))
+  p = 2 * stats::pnorm(z, lower.tail = FALSE)
   p < p_threshold
 }
 
@@ -22,7 +22,7 @@ get_normal_ci <- function(m, se, alpha = 0.05) {
 get_summary <- function(draws) {
   m = mean(draws)
   s = stats::sd(draws)
-  pval = 2 * (1 - stats::pnorm(abs(m / s)))
+  pval = 2 * stats::pnorm(abs(m / s), lower.tail = FALSE)
   list(beta_est = m, beta_se = s, beta_pval = pval,
        ci_emp = get_empirical_ci(draws),
        ci_normal = get_normal_ci(m, s))
