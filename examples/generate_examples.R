@@ -2,7 +2,7 @@
 # ---- 0. setup --------------------------------------------------------------
 
 # Working directory should be examples/. Adjust if running from elsewhere.
-# setwd("~/FusioMR-software/examples")
+setwd("~/FusioMR-software/examples")
 
 library(Rcpp)
 # Compile fastSigLm once. This is independent of the FusioMRdev package.
@@ -16,24 +16,24 @@ source("dgm/dgm5.R")
 dir.create("data", showWarnings = FALSE)
 
 # ---- 1. seso_uhp_only ------------------------------------------------------
-P_CUTOFF <- 0.001
+P_CUTOFF <- 1e-3
 
-set.seed(2024101)
+set.seed(13)
 params_seso_uhp <- list(
-  m       = 200,    # number of independent SNPs
-  nx      = 300,    # exposure GWAS sample size (limited IV scenario)
-  ny      = 20000,  # outcome GWAS sample size
-  a_gamma = -0.3,   # IV-to-exposure effect: Unif(-b_gamma, b_gamma)
+  m       = 200,    
+  nx      = 300,    
+  ny      = 20000,  
+  a_gamma = -0.3,   
   b_gamma = 0.3,
-  a_f     = 0.1,    # MAF range
+  a_f     = 0.1,   
   b_f     = 0.3,
-  a_alpha = -0.06,  # UHP effect: Unif(-b_alpha, b_alpha) with b_alpha = 0.10
+  a_alpha = -0.06,  
   b_alpha = 0.06,
-  a_phi   = -0.03,  # CHP effect range (unused when q_chp = 0)
+  a_phi   = -0.03,  
   b_phi   = 0.03,
-  theta   = 0,    # true causal effect (paper grid: c(0, 0.1, 0.2, 0.3, 0.4))
-  q_uhp   = 1,      # all SNPs have UHP effect (paper assumption)
-  q_chp   = 0       # no CHP for the seso_uhp_only example
+  theta   = 0,   
+  q_uhp   = 1,      
+  q_chp   = 0.05       
 )
 
 sim_seso_uhp <- do.call(dgm4, params_seso_uhp)
@@ -50,7 +50,7 @@ seso_uhp_data <- list(
   params    = params_seso_uhp,
   p_cutoff  = P_CUTOFF,
   n_iv      = sum(sel),
-  seed      = 20240101
+  seed      = 13
 )
 saveRDS(seso_uhp_data, file = "data/seso_uhp_only_example.rds")
 cat(sprintf("Saved seso_uhp_only_example.rds : %d IVs selected, true beta = %.2f\n",
@@ -73,7 +73,7 @@ params_seso_chp <- list(
   b_phi   = 0.05,
   theta   = 0,    
   q_uhp   = 1,
-  q_chp   = 0.50    
+  q_chp   = 0.5  
 )
 sim_seso_chp <- do.call(dgm4, params_seso_chp)
 z_exp2 <- abs(sim_seso_chp$b_exp / sim_seso_chp$se_exp)
@@ -98,8 +98,8 @@ cat(sprintf("Saved seso_with_chp_example.rds : %d IVs selected, true beta = %.3f
 
 
 # ---- 3. semo (single exposure, two outcomes) -------------------------------
-set.seed(42)
-P_CUTOFF_SEMO <- 0.001    
+set.seed(20240101)
+P_CUTOFF_SEMO <- 1e-3    
 
 params_semo <- list(
   m         = 200,
@@ -114,7 +114,7 @@ params_semo <- list(
   b_alpha1  = 0.10,
   a_alpha2  = -0.10,
   b_alpha2  = 0.10,
-  rho_theta = 0.4,       
+  rho_theta = 0,       
   theta1    = 0,       
   theta2    = 0,      
   q_uhp1    = 1,
@@ -138,7 +138,7 @@ semo_data <- list(
   params    = params_semo,
   p_cutoff  = P_CUTOFF_SEMO,
   n_iv      = sum(sel3),
-  seed      = 42
+  seed      = 20240101
 )
 
 saveRDS(semo_data, file = "data/semo_example.rds")
