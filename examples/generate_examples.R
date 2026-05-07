@@ -98,23 +98,23 @@ cat(sprintf("Saved seso_with_chp_example.rds : %d IVs selected, true beta = %.3f
 
 
 # ---- 3. semo (single exposure, two outcomes) -------------------------------
-set.seed(20240101)
+set.seed(1)
 P_CUTOFF_SEMO <- 1e-3    
 
 params_semo <- list(
   m         = 200,
-  nx        = 300,        # limited-IV exposure GWAS
+  nx        = 300,
   ny1       = 80000,     
   ny2       = 20000,    
   a_gamma   = -0.3,
   b_gamma   = 0.3,
   a_f       = 0.1,
   b_f       = 0.3,
-  a_alpha1  = -0.10,     
-  b_alpha1  = 0.10,
-  a_alpha2  = -0.10,
-  b_alpha2  = 0.10,
-  rho_theta = 0,       
+  a_alpha1  = -0.1,     
+  b_alpha1  = 0.1,
+  a_alpha2  = -0.1,
+  b_alpha2  = 0.1,
+  rho_theta = 0.8,       
   theta1    = 0,       
   theta2    = 0,      
   q_uhp1    = 1,
@@ -138,7 +138,7 @@ semo_data <- list(
   params    = params_semo,
   p_cutoff  = P_CUTOFF_SEMO,
   n_iv      = sum(sel3),
-  seed      = 20240101
+  seed      = 1
 )
 
 saveRDS(semo_data, file = "data/semo_example.rds")
