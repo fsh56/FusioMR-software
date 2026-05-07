@@ -41,13 +41,13 @@ Pick the one that matches your data and concerns about pleiotropy:
 
 | Model            | Exposure | Outcome | Use when                                              |
 |------------------|----------|---------|-------------------------------------------------------|
-| `seso_uhp_only`  | 1        | 1       | Most IVs valid; uncorrelated pleiotropy is the concern |
-| `seso_with_chp`  | 1        | 1       | Some IVs may share genetic effects with the outcome    |
-| `semo`           | 1        | 2       | One exposure, two related outcomes (joint analysis)    |
-| `memo`           | 2        | 2       | Two exposures and two outcomes; full joint model       |
+| `seso_uhp_only`  | 1        | 1       | uncorrelated pleiotropy (UHP) is the concern |
+| `seso_with_chp`  | 1        | 1       | correlated pleiotropy (CHP) is the concern   |
+| `semo`           | 1        | 2       | one exposure, two outcomes                     |
+| `memo`           | 2        | 2       | two exposures, two outcomes;                        |
 
-Input format mirrors that of `TwoSampleMR` and `MendelianRandomization` —
-you only need summary statistics and a `model` name.
+For `semo`, pass `b_out` / `se_out` as a `K x 2` matrix.
+For `memo`, pass `b_exp` / `se_exp` and `b_out` / `se_out` as `K x 2`matrices.
 
 ## Quick Start
 
