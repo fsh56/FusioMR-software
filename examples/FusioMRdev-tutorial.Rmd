@@ -1,7 +1,5 @@
 ---
-title: "FusioMRdev Tutorial"
-author: "Bowei Kang, Sihao Feng, Lin S. Chen"
-date: "`r format(Sys.Date(), '%B %d, %Y')`"
+title: "FusioMR Tutorial"
 output:
   rmarkdown::html_vignette:
     toc: true
@@ -31,26 +29,6 @@ gene expression),where the number of available cis-QTLs as instrumental variable
 applicable to complex trait exposures with a moderate-to-large number of
 IVs. For methodological details, please refer to https://doi.org/10.1016/j.ajhg.2026.03.017.
 
-FusioMRdev provides four models, accessed via the `model` argument of
-`fusiomr()`:
-
-| Model            | Exposure | Outcome | Use when                                              |
-|------------------|----------|---------|-------------------------------------------------------|
-| `seso_uhp_only`  | 1        | 1       | uncorrelated pleiotropy (UHP) is the concern |
-| `seso_with_chp`  | 1        | 1       | correlated pleiotropy (CHP) is the concern   |
-| `semo`           | 1        | 2       | one exposure, two outcomes                     |
-| `memo`           | 2        | 2       | two exposures, two outcomes;    
-
-Throughout this vignette, **UHP** stands for *uncorrelated horizontal
-pleiotropy* and **CHP** for *correlated horizontal pleiotropy*.
-
-The input format mirrors that of `TwoSampleMR` and `MendelianRandomization`:
-the user supplies SNP–exposure and SNP–outcome effect estimates and their
-standard errors. FusioMRdev assumes that the input SNPs have already been
-**clumped to approximate independence** and **selected as IVs** (e.g., by a
-p-value threshold on the exposure). The package does not perform clumping
-or IV selection internally.
-
 # Installation
 
 FusioMRdev requires **R >= 4.3.0** and a working C++ compiler:
@@ -74,58 +52,39 @@ suppressMessages(library(FusioMRdev))
 The packages `Rcpp`, `RcppArmadillo`, and `invgamma` are pulled in
 automatically as dependencies.
 
-# Single exposure, single outcome: `seso_uhp_only`
+# FusioMRs: Single-outcome MR model allowing pleiotropy
+## Single Exposure, Single Outcome: `seso_uhp_only`
 
 The `seso_uhp_only` model handles the most common MR setup: one exposure,
-one outcome, and uncorrelated horizontal pleiotropy as the main concern.
-It is the recommended default for TWMR analysis with limited IVs.
-
-We use a pre-generated example dataset, simulated under the limited-IV
-TWMR setting (exposure GWAS sample size = 300, outcome GWAS sample size =
-20,000, true causal effect $\beta = 0$, IVs selected at p < 1e-3).
+one outcome, and uncorrelated horizontal pleiotropy as the main concern. The following is the function usage example with pre-generated example dataset, simulated udner the limited-IV
+TWMR setting (exposure GWAS sample size = 300, outcome GWAS sample size = 20,000).
 
 ```{r seso-uhp-load}
-d1 <- readRDS("~/examples/data/seso_uhp_only_example.rds")
-str(d1, max.level = 1)
-```
-
-The four required inputs are vectors of equal length: SNP–exposure
-effects (`b_exp`), their standard errors (`se_exp`), and the analogous
-quantities for the outcome (`b_out`, `se_out`).
-
-Run the model:
-
-```{r seso-uhp-fit}
-fit1 <- fusiomr(d1$b_exp, d1$se_exp, d1$b_out, d1$se_out,
+d1 <- readRDS("data/seso_uhp_only_example.rds")
+fit1 <- fusiomr(d1$b_exp, 
+                d1$se_exp, 
+                d1$b_out, 
+                d1$se_out,
                 model = "seso_uhp_only")
+
+# the returned object is a list with the MR estimates:
+fit1$est    # causal effect estiamtes
+fit1$se     # standard error
+fit1$pval   # two-sided p-value
+fit1$ci     # 95% credible interval
 ```
 
-The returned object is a list with the posterior summary of the causal
-effect:
+## Single exposure, Single outcome with CHP: `seso_with_chp`
 
-```{r seso-uhp-results}
-fit1$est    # posterior mean of beta
-fit1$se     # posterior SD
-fit1$pval   # Bayesian tail probability (pseudo p-value)
-fit1$ci     # 95% empirical credible interval
-```
-
-# Single exposure, single outcome with CHP: `seso_with_chp`
-
-When some IVs are suspected of having correlated horizontal pleiotropy
-(for example, when the exposure is a complex trait with many IVs and a
-subset may share confounders with the outcome), use `seso_with_chp`. The
-model adds a latent CHP indicator on each IV; label-switching is
-corrected internally.
-
-We use a complex-trait example (exposure and outcome GWAS sample sizes
-both 20,000, true $\beta = 0$, 5% of IVs have CHP, IVs selected at
-p < 1e-5).
+When some IVs are suspected of having correlated horizontal pleiotropy, use `seso_with_chp`. 
+We use a complex-trait example (exposure and outcome GWAS sample sizes both 20,000 for model illustration.
 
 ```{r seso-chp-fit}
-d2 <- readRDS("~/examples/data/seso_with_chp_example.rds")
-
-fit2 <- fusiomr(d2$b_exp, d2$se_exp, d2$b_out, d2$se_out,
+d2 <- readRDS("data/seso_with_chp_example.rds")
+fit2 <- fusiomr(d2$b_exp, 
+                d2$se_exp, 
+                d2$b_out, 
+                d2$se_out,
                 model = "seso_with_chp")
 
 fit2$est
@@ -134,27 +93,18 @@ fit2$pval
 fit2$ci
 ```
 
-# Single exposure, two outcomes: `semo`
+# FusioMRm: Multi-outcome MR models accounting for shared pleiotropy
+## Single exposure, Two outcomes: `semo`
 
-`semo` jointly analyzes one exposure and two correlated outcomes. The
-model places a bivariate prior on the per-IV UHP effects across the two
-outcomes, allowing information sharing while estimating each
-exposure–outcome causal effect independently.
-
-The input format differs from the single-outcome models: `b_out` and
-`se_out` must be `K x 2` matrices, where column $j$ contains summary
-statistics for outcome $j$.
-
-We use a TWMR-style example with one shared exposure and two outcomes
-(exposure sample size = 300, outcome 1 sample size = 80,000, outcome 2
-sample size = 20,000, true causal effects $\beta_1 = \beta_2 = 0$, UHP
-correlation 0.4).
+`semo` jointly analyzes one exposure and two outcomes. The input format differs from the single-outcome models: `b_out` and `se_out` must be `K x 2` matrices, where column $j$ contains summary
+statistics for outcome $j$. We use a TWMR-style example with one shared exposure and two outcomes for illustration. (exposure sample size = 300, outcome 1 sample size = 80,000, outcome 2 sample size = 20,000).
 
 ```{r semo-fit}
-d3 <- readRDS("~/examples/data/semo_example.rds")
-dim(d3$b_out) 
-
-fit3 <- fusiomr(d3$b_exp, d3$se_exp, d3$b_out, d3$se_out,
+d3 <- readRDS("data/semo_example.rds")
+fit3 <- fusiomr(d3$b_exp, 
+                d3$se_exp, 
+                d3$b_out, 
+                d3$se_out,
                 model = "semo")
 
 fit3$est
@@ -163,11 +113,10 @@ fit3$pval
 fit3$ci
 ```
 
-# Two exposures, two outcomes: `memo`
 
-`memo` is the most general model in FusioMRdev. It jointly analyzes two
-correlated exposures and two correlated outcomes, accounting for both
-UHP and CHP. The summary-statistics inputs become `K x 2` matrices for
+## Two exposures, Two outcomes: `memo`
+
+`memo` is the model which jointly analyzes two correlated exposures and two correlated outcomes, accounting for both UHP and CHP. The summary-statistics inputs become `K x 2` matrices for
 both the exposure side and the outcome side: column $j$ corresponds to
 exposure $j$ (or outcome $j$).
 
@@ -175,34 +124,22 @@ The call signature is:
 
 ```{r memo-call, eval = FALSE}
 # b_exp, se_exp, b_out, se_out are all K x 2 matrices
-fit4 <- fusiomr(b_exp, se_exp, b_out, se_out, model = "memo")
-
-fit4$est    # length-2 vector
+fit4 <- fusiomr(b_exp, 
+                se_exp, 
+                b_out, 
+                se_out, 
+                model = "memo")
+fit4$est  
 fit4$se
 fit4$pval
-fit4$ci     # 2-row matrix
+fit4$ci   
 ```
-
-`memo` is more computationally demanding than the other three models
-because it samples two bivariate covariance matrices ($\Sigma_\gamma$
-and $\Sigma_\theta$) at each Gibbs iteration.
 
 # Tuning: `parameter_control()`
 
 For most users, the defaults are sufficient and `parameter_control()`
-does not need to be called explicitly. When tuning is needed, pass a
+does not need to be called explicitly. When advanced parameter setting is needed, pass a
 customized control list to `fusiomr()`:
-
-```{r control-example, eval = FALSE}
-ctrl <- parameter_control(
-  niter = 30000,                   # longer MCMC
-  z_thresh = qnorm(1 - 5e-8 / 2),  # winner's-curse correction
-  rho_ov  = 0.2                    # sample overlap correction
-)
-
-fit <- fusiomr(b_exp, se_exp, b_out, se_out,
-               model = "seso_uhp_only", control = ctrl)
-```
 
 A summary of the available tuning parameters:
 
@@ -222,6 +159,24 @@ A summary of the available tuning parameters:
 | `global_Sigma_gamma`, `global_Sigma_theta` | Global EB centers (2x2 matrices), required for hybrid mode in `semo` / `memo`. |
 
 See `?parameter_control` for full details.
+
+
+```{r control-example, eval = FALSE}
+ctrl <- parameter_control(
+  niter = 30000,                   # longer MCMC
+  z_thresh = qnorm(1 - 5e-8 / 2),  # winner's-curse correction
+  rho_ov  = 0.2                    # sample overlap correction
+)
+
+fit <- fusiomr(b_exp, 
+               se_exp, 
+               b_out, 
+               se_out,
+               model = "seso_uhp_only", 
+               control = ctrl)
+```
+
+
 
 # Hybrid empirical-Bayes priors (`hybrid = TRUE`)
 
@@ -251,25 +206,22 @@ The typical workflow is two-pass:
 2. **Refit the target exposure** with `hybrid = TRUE`, passing the
    global centers to `parameter_control()`.
 
-## pseudo-code: `seso_uhp_only` with hybrid priors
+## pseudo-code with hybrid priors
 
 ```{r hybrid-seso, eval = FALSE}
 # After computing global_mean_gamma and global_mean_theta from a reference scan:
 
+# seso example
 ctrl_hybrid <- parameter_control(
   hybrid            = TRUE,
   kappa_hybrid      = 5,
   global_mean_gamma = global_mean_gamma,   # your global estimate (scalar)
   global_mean_theta = global_mean_theta    # your global estimate (scalar)
 )
-
 fit <- fusiomr(b_exp, se_exp, b_out, se_out,
                model = "seso_uhp_only", control = ctrl_hybrid)
-```
 
-## pseudo-code: `semo` with hybrid priors
-
-```{r hybrid-semo, eval = FALSE}
+# semo
 ctrl_hybrid <- parameter_control(
   hybrid             = TRUE,
   kappa_hybrid       = 5,
@@ -279,11 +231,8 @@ ctrl_hybrid <- parameter_control(
 
 fit <- fusiomr(b_exp, se_exp, b_out, se_out,
                model = "semo", control = ctrl_hybrid)
-```
 
-## Pseudo-code: `memo` with hybrid priors
-
-```{r hybrid-memo, eval = FALSE}
+# memo
 ctrl_hybrid <- parameter_control(
   hybrid             = TRUE,
   kappa_hybrid       = 5,
@@ -291,8 +240,12 @@ ctrl_hybrid <- parameter_control(
   global_Sigma_theta = global_Sigma_theta   # your global estimate (2 x 2 matrix)
 )
 
-fit <- fusiomr(b_exp, se_exp, b_out, se_out,
-               model = "memo", control = ctrl_hybrid)
+fit <- fusiomr(b_exp, 
+               se_exp, 
+               b_out, 
+               se_out,
+               model = "memo", 
+               control = ctrl_hybrid)
 ```
 
 If `hybrid = TRUE` is set but the required global argument(s) are

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>FusioMR Tutorial</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">FusioMR Tutorial</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#installation" id="toc-installation">Installation</a></li>
+<li><a href="#single-exposure-single-outcome-seso_uhp_only" id="toc-single-exposure-single-outcome-seso_uhp_only">Single exposure,
+single outcome: <code>seso_uhp_only</code></a></li>
+<li><a href="#single-exposure-single-outcome-with-chp-seso_with_chp" id="toc-single-exposure-single-outcome-with-chp-seso_with_chp">Single
+exposure, single outcome with CHP: <code>seso_with_chp</code></a></li>
+<li><a href="#single-exposure-two-outcomes-semo" id="toc-single-exposure-two-outcomes-semo">Single exposure, two
+outcomes: <code>semo</code></a></li>
+<li><a href="#two-exposures-two-outcomes-memo" id="toc-two-exposures-two-outcomes-memo">Two exposures, two outcomes:
+<code>memo</code></a></li>
+<li><a href="#tuning-parameter_control" id="toc-tuning-parameter_control">Tuning:
+<code>parameter_control()</code></a></li>
+<li><a href="#hybrid-empirical-bayes-priors-hybrid-true" id="toc-hybrid-empirical-bayes-priors-hybrid-true">Hybrid
+empirical-Bayes priors (<code>hybrid = TRUE</code>)</a>
+<ul>
+<li><a href="#pseudo-code-seso_uhp_only-with-hybrid-priors" id="toc-pseudo-code-seso_uhp_only-with-hybrid-priors">pseudo-code:
+<code>seso_uhp_only</code> with hybrid priors</a></li>
+<li><a href="#pseudo-code-semo-with-hybrid-priors" id="toc-pseudo-code-semo-with-hybrid-priors">pseudo-code:
+<code>semo</code> with hybrid priors</a></li>
+<li><a href="#pseudo-code-memo-with-hybrid-priors" id="toc-pseudo-code-memo-with-hybrid-priors">Pseudo-code:
+<code>memo</code> with hybrid priors</a></li>
+</ul></li>
+<li><a href="#getting-help" id="toc-getting-help">Getting help</a></li>
+<li><a href="#session-info" id="toc-session-info">Session info</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>This vignette walks through the usage of the
+<strong>FusioMRdev</strong> package. FusioMR is a Bayesian Mendelian
+randomization (MR) framework for estimating the causal effect of an
+exposure on one or more outcomes from GWAS summary statistics. It is
+designed primarily for molecular trait exposures (e.g., gene
+expression),where the number of available cis-QTLs as instrumental
+variables (IVs) is often limited and horizontal pleiotropy is pervasive.
+FusioMR is also applicable to complex trait exposures with a
+moderate-to-large number of IVs. For methodological details, please
+refer to <a href="https://doi.org/10.1016/j.ajhg.2026.03.017" class="uri">https://doi.org/10.1016/j.ajhg.2026.03.017</a>.</p>
+</div>
+<div id="installation" class="section level1">
+<h1>Installation</h1>
+<p>FusioMRdev requires <strong>R &gt;= 4.3.0</strong> and a working C++
+compiler:</p>
+<ul>
+<li><strong>macOS</strong>: <code>xcode-select --install</code></li>
+<li><strong>Windows</strong>: install <a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a></li>
+</ul>
+<p>Install the development version from GitHub:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;fsh56/FusioMR-software&quot;</span>)</span></code></pre></div>
+<p>Load the package:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">suppressMessages</span>(<span class="fu">library</span>(FusioMRdev))</span></code></pre></div>
+<p>The packages <code>Rcpp</code>, <code>RcppArmadillo</code>, and
+<code>invgamma</code> are pulled in automatically as dependencies.</p>
+<p>FusioMRdev provides four models, accessed via the <code>model</code>
+argument of <code>fusiomr()</code>:</p>
+<table>
+<colgroup>
+<col width="19%" />
+<col width="10%" />
+<col width="9%" />
+<col width="59%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Exposure</th>
+<th>Outcome</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>seso_uhp_only</code></td>
+<td>1</td>
+<td>1</td>
+<td>uncorrelated pleiotropy (UHP) is the concern</td>
+</tr>
+<tr class="even">
+<td><code>seso_with_chp</code></td>
+<td>1</td>
+<td>1</td>
+<td>correlated pleiotropy (CHP) is the concern</td>
+</tr>
+<tr class="odd">
+<td><code>semo</code></td>
+<td>1</td>
+<td>2</td>
+<td>one exposure, two outcomes</td>
+</tr>
+<tr class="even">
+<td><code>memo</code></td>
+<td>2</td>
+<td>2</td>
+<td>two exposures, two outcomes;</td>
+</tr>
+</tbody>
+</table>
+<p>Throughout this vignette, <strong>UHP</strong> stands for
+<em>uncorrelated horizontal pleiotropy</em> and <strong>CHP</strong> for
+<em>correlated horizontal pleiotropy</em>.</p>
+<p>The input format mirrors that of <code>TwoSampleMR</code> and
+<code>MendelianRandomization</code>: the user supplies SNP–exposure and
+SNP–outcome effect estimates and their standard errors. FusioMRdev
+assumes that the input SNPs have already been <strong>clumped to
+approximate independence</strong> and <strong>selected as IVs</strong>
+(e.g., by a p-value threshold on the exposure). The package does not
+perform clumping or IV selection internally.</p>
+</div>
+<div id="single-exposure-single-outcome-seso_uhp_only" class="section level1">
+<h1>Single exposure, single outcome: <code>seso_uhp_only</code></h1>
+<p>The <code>seso_uhp_only</code> model handles the most common MR
+setup: one exposure, one outcome, and uncorrelated horizontal pleiotropy
+as the main concern. It is the recommended default for TWMR analysis
+with limited IVs.</p>
+<p>We use a pre-generated example dataset, simulated under the
+limited-IV TWMR setting (exposure GWAS sample size = 300, outcome GWAS
+sample size = 20,000, true causal effect <span class="math inline">\(\beta = 0\)</span>, IVs selected at p &lt;
+1e-3).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>d1 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/seso_uhp_only_example.rds&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">str</span>(d1, <span class="at">max.level =</span> <span class="dv">1</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="do">## List of 10</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="do">##  $ b_exp    : num [1:8] 0.545 -0.544 -0.565 0.549 0.615 ...</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="do">##  $ se_exp   : num [1:8] 0.163 0.163 0.163 0.163 0.162 ...</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="do">##  $ b_out    : num [1:8] -0.000338 0.037288 0.020274 -0.058083 -0.019725 ...</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="do">##  $ se_out   : num [1:8] 0.0106 0.0105 0.0106 0.0105 0.0106 ...</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="do">##  $ true_beta: num 0</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="do">##  $ setting  : chr &quot;Paper Scenario 1A (param_sim1): FusioMR_s with limited IVs (n_x = 300), no CHP, p_cutoff = 1e-2&quot;</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="do">##  $ params   :List of 14</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="do">##  $ p_cutoff : num 0.001</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="do">##  $ n_iv     : int 8</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="do">##  $ seed     : num 13</span></span></code></pre></div>
+<p>The four required inputs are vectors of equal length: SNP–exposure
+effects (<code>b_exp</code>), their standard errors
+(<code>se_exp</code>), and the analogous quantities for the outcome
+(<code>b_out</code>, <code>se_out</code>).</p>
+<p>Run the model:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(d1<span class="sc">$</span>b_exp, d1<span class="sc">$</span>se_exp, d1<span class="sc">$</span>b_out, d1<span class="sc">$</span>se_out,</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;seso_uhp_only&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="do">## Running model: seso_uhp_only</span></span></code></pre></div>
+<p>The returned object is a list with the posterior summary of the
+causal effect:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>fit1<span class="sc">$</span>est    <span class="co"># posterior mean of beta</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="do">## [1] -0.06649055</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>fit1<span class="sc">$</span>se     <span class="co"># posterior SD</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="do">## [1] 0.01844637</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>fit1<span class="sc">$</span>pval   <span class="co"># Bayesian tail probability (pseudo p-value)</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="do">## [1] 0.0003127141</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>fit1<span class="sc">$</span>ci     <span class="co"># 95% empirical credible interval</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="do">##        2.5%       97.5% </span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="do">## -0.10439261 -0.03114987</span></span></code></pre></div>
+</div>
+<div id="single-exposure-single-outcome-with-chp-seso_with_chp" class="section level1">
+<h1>Single exposure, single outcome with CHP:
+<code>seso_with_chp</code></h1>
+<p>When some IVs are suspected of having correlated horizontal
+pleiotropy (for example, when the exposure is a complex trait with many
+IVs and a subset may share confounders with the outcome), use
+<code>seso_with_chp</code>. The model adds a latent CHP indicator on
+each IV; label-switching is corrected internally.</p>
+<p>We use a complex-trait example (exposure and outcome GWAS sample
+sizes both 20,000, true <span class="math inline">\(\beta = 0\)</span>,
+5% of IVs have CHP, IVs selected at p &lt; 1e-5).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/seso_with_chp_example.rds&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(d2<span class="sc">$</span>b_exp, d2<span class="sc">$</span>se_exp, d2<span class="sc">$</span>b_out, d2<span class="sc">$</span>se_out,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;seso_with_chp&quot;</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="do">## Running model: seso_with_chp</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>fit2<span class="sc">$</span>est</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="do">## [1] 0.02728008</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>fit2<span class="sc">$</span>se</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="do">## [1] 0.01302162</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>fit2<span class="sc">$</span>pval</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="do">## [1] 0.03617241</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>fit2<span class="sc">$</span>ci</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="do">##        2.5%       97.5% </span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="do">## 0.001404499 0.052988272</span></span></code></pre></div>
+</div>
+<div id="single-exposure-two-outcomes-semo" class="section level1">
+<h1>Single exposure, two outcomes: <code>semo</code></h1>
+<p><code>semo</code> jointly analyzes one exposure and two correlated
+outcomes. The model places a bivariate prior on the per-IV UHP effects
+across the two outcomes, allowing information sharing while estimating
+each exposure–outcome causal effect independently.</p>
+<p>The input format differs from the single-outcome models:
+<code>b_out</code> and <code>se_out</code> must be <code>K x 2</code>
+matrices, where column <span class="math inline">\(j\)</span> contains
+summary statistics for outcome <span class="math inline">\(j\)</span>.</p>
+<p>We use a TWMR-style example with one shared exposure and two outcomes
+(exposure sample size = 300, outcome 1 sample size = 80,000, outcome 2
+sample size = 20,000, true causal effects <span class="math inline">\(\beta_1 = \beta_2 = 0\)</span>, UHP correlation
+0.4).</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>d3 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/semo_example.rds&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">dim</span>(d3<span class="sc">$</span>b_out) </span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="do">## [1] 5 2</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>fit3 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(d3<span class="sc">$</span>b_exp, d3<span class="sc">$</span>se_exp, d3<span class="sc">$</span>b_out, d3<span class="sc">$</span>se_out,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;semo&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="do">## Running model: semo</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>fit3<span class="sc">$</span>est</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="do">## [1] -0.09320880 -0.09108334</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>fit3<span class="sc">$</span>se</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="do">## [1] 0.07436030 0.09213766</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>fit3<span class="sc">$</span>pval</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="do">## [1] 0.2100328 0.3228799</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>fit3<span class="sc">$</span>ci</span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="do">##            2.5%      97.5%</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="do">## [1,] -0.3286793 0.03829093</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="do">## [2,] -0.3644627 0.08133307</span></span></code></pre></div>
+</div>
+<div id="two-exposures-two-outcomes-memo" class="section level1">
+<h1>Two exposures, two outcomes: <code>memo</code></h1>
+<p><code>memo</code> is the most general model in FusioMRdev. It jointly
+analyzes two correlated exposures and two correlated outcomes,
+accounting for both UHP and CHP. The summary-statistics inputs become
+<code>K x 2</code> matrices for both the exposure side and the outcome
+side: column <span class="math inline">\(j\)</span> corresponds to
+exposure <span class="math inline">\(j\)</span> (or outcome <span class="math inline">\(j\)</span>).</p>
+<p>The call signature is:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># b_exp, se_exp, b_out, se_out are all K x 2 matrices</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>fit4 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(b_exp, se_exp, b_out, se_out, <span class="at">model =</span> <span class="st">&quot;memo&quot;</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>fit4<span class="sc">$</span>est    <span class="co"># length-2 vector</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>fit4<span class="sc">$</span>se</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>fit4<span class="sc">$</span>pval</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>fit4<span class="sc">$</span>ci     <span class="co"># 2-row matrix</span></span></code></pre></div>
+<p><code>memo</code> is more computationally demanding than the other
+three models because it samples two bivariate covariance matrices (<span class="math inline">\(\Sigma_\gamma\)</span> and <span class="math inline">\(\Sigma_\theta\)</span>) at each Gibbs
+iteration.</p>
+</div>
+<div id="tuning-parameter_control" class="section level1">
+<h1>Tuning: <code>parameter_control()</code></h1>
+<p>For most users, the defaults are sufficient and
+<code>parameter_control()</code> does not need to be called explicitly.
+When tuning is needed, pass a customized control list to
+<code>fusiomr()</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>ctrl <span class="ot">&lt;-</span> <span class="fu">parameter_control</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="at">niter =</span> <span class="dv">30000</span>,                   <span class="co"># longer MCMC</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="at">z_thresh =</span> <span class="fu">qnorm</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fl">5e-8</span> <span class="sc">/</span> <span class="dv">2</span>),  <span class="co"># winner&#39;s-curse correction</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">rho_ov  =</span> <span class="fl">0.2</span>                    <span class="co"># sample overlap correction</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(b_exp, se_exp, b_out, se_out,</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>               <span class="at">model =</span> <span class="st">&quot;seso_uhp_only&quot;</span>, <span class="at">control =</span> ctrl)</span></code></pre></div>
+<p>A summary of the available tuning parameters:</p>
+<table>
+<colgroup>
+<col width="19%" />
+<col width="80%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>niter</code></td>
+<td>Number of Gibbs iterations (default 20000).</td>
+</tr>
+<tr class="even">
+<td><code>burnin_prop</code></td>
+<td>Burn-in proportion in [0, 1) (default 0.5).</td>
+</tr>
+<tr class="odd">
+<td><code>c_gamma</code>, <code>c_theta</code></td>
+<td>Prior weight per IV for <span class="math inline">\(\sigma^2_\gamma\)</span> and <span class="math inline">\(\sigma^2_\theta\)</span>. Larger values make the
+prior more concentrated around its mean.</td>
+</tr>
+<tr class="even">
+<td><code>kappa_gamma</code>, <code>kappa_theta</code></td>
+<td>Conservative inflation multipliers (&gt;= 1) for the prior
+means.</td>
+</tr>
+<tr class="odd">
+<td><code>Kmin</code>, <code>Kmax</code></td>
+<td>Floor and cap on <span class="math inline">\(K\)</span> when
+computing prior shape parameters.</td>
+</tr>
+<tr class="even">
+<td><code>rho_ov</code></td>
+<td>Sampling correlation between exposure and outcome due to sample
+overlap, in [-1, 1].</td>
+</tr>
+<tr class="odd">
+<td><code>z_thresh</code></td>
+<td>Optional <span class="math inline">\(|Z_\gamma|\)</span> selection
+threshold (winner’s-curse correction). For p = 5e-8 two-sided, use
+<code>qnorm(1 - 5e-8/2)</code>.</td>
+</tr>
+<tr class="even">
+<td><code>trim</code></td>
+<td>Tail probability for winsorized moments (default 0.1).</td>
+</tr>
+<tr class="odd">
+<td><code>hybrid</code></td>
+<td>Logical; enable hybrid empirical-Bayes priors (see next
+section).</td>
+</tr>
+<tr class="even">
+<td><code>kappa_hybrid</code></td>
+<td>Pooling strength for hybrid mode; larger values shrink the local
+moment toward the global.</td>
+</tr>
+<tr class="odd">
+<td><code>global_mean_gamma</code>, <code>global_mean_theta</code></td>
+<td>Global EB centers (scalars), required for hybrid mode in
+<code>seso_*</code> models.</td>
+</tr>
+<tr class="even">
+<td><code>global_Sigma_gamma</code>,
+<code>global_Sigma_theta</code></td>
+<td>Global EB centers (2x2 matrices), required for hybrid mode in
+<code>semo</code> / <code>memo</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>See <code>?parameter_control</code> for full details.</p>
+</div>
+<div id="hybrid-empirical-bayes-priors-hybrid-true" class="section level1">
+<h1>Hybrid empirical-Bayes priors (<code>hybrid = TRUE</code>)</h1>
+<p>By default, FusioMR sets the variance priors using a
+method-of-moments estimate computed from the input IVs alone (the
+<em>local</em> moment). In gene-region-specific TWMR analyses where the
+number of IVs per region is small, the local moment can be noisy. The
+hybrid mode pools the local moment with a global empirical-Bayes center
+estimated from a larger reference set.</p>
+<p>Setting <code>hybrid = TRUE</code> requires the user to supply the
+appropriate global center(s) for the chosen model:</p>
+<table>
+<colgroup>
+<col width="19%" />
+<col width="61%" />
+<col width="19%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Required global argument(s)</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>seso_uhp_only</code></td>
+<td><code>global_mean_gamma</code>, <code>global_mean_theta</code></td>
+<td>scalar, scalar</td>
+</tr>
+<tr class="even">
+<td><code>seso_with_chp</code></td>
+<td><code>global_mean_gamma</code>, <code>global_mean_theta</code></td>
+<td>scalar, scalar</td>
+</tr>
+<tr class="odd">
+<td><code>semo</code></td>
+<td><code>global_mean_gamma</code>, <code>global_Sigma_theta</code></td>
+<td>scalar, 2x2 mat</td>
+</tr>
+<tr class="even">
+<td><code>memo</code></td>
+<td><code>global_Sigma_gamma</code>,
+<code>global_Sigma_theta</code></td>
+<td>2x2 mat, 2x2 mat</td>
+</tr>
+</tbody>
+</table>
+<p>The typical workflow is two-pass:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Estimate the global centers</strong> by running FusioMR on a
+large reference set of exposures (e.g., all genes in a TWMR scan) and
+summarizing the per-exposure local moments (e.g., taking the median
+across exposures).</li>
+<li><strong>Refit the target exposure</strong> with
+<code>hybrid = TRUE</code>, passing the global centers to
+<code>parameter_control()</code>.</li>
+</ol>
+<div id="pseudo-code-seso_uhp_only-with-hybrid-priors" class="section level2">
+<h2>pseudo-code: <code>seso_uhp_only</code> with hybrid priors</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># After computing global_mean_gamma and global_mean_theta from a reference scan:</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>ctrl_hybrid <span class="ot">&lt;-</span> <span class="fu">parameter_control</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">hybrid            =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">kappa_hybrid      =</span> <span class="dv">5</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">global_mean_gamma =</span> global_mean_gamma,   <span class="co"># your global estimate (scalar)</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="at">global_mean_theta =</span> global_mean_theta    <span class="co"># your global estimate (scalar)</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(b_exp, se_exp, b_out, se_out,</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>               <span class="at">model =</span> <span class="st">&quot;seso_uhp_only&quot;</span>, <span class="at">control =</span> ctrl_hybrid)</span></code></pre></div>
+</div>
+<div id="pseudo-code-semo-with-hybrid-priors" class="section level2">
+<h2>pseudo-code: <code>semo</code> with hybrid priors</h2>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>ctrl_hybrid <span class="ot">&lt;-</span> <span class="fu">parameter_control</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="at">hybrid             =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">kappa_hybrid       =</span> <span class="dv">5</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">global_mean_gamma  =</span> global_mean_gamma,   <span class="co"># your global estimate (scalar)</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="at">global_Sigma_theta =</span> global_Sigma_theta   <span class="co"># your global estimate (2 x 2 matrix)</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>)</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(b_exp, se_exp, b_out, se_out,</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>               <span class="at">model =</span> <span class="st">&quot;semo&quot;</span>, <span class="at">control =</span> ctrl_hybrid)</span></code></pre></div>
+</div>
+<div id="pseudo-code-memo-with-hybrid-priors" class="section level2">
+<h2>Pseudo-code: <code>memo</code> with hybrid priors</h2>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>ctrl_hybrid <span class="ot">&lt;-</span> <span class="fu">parameter_control</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="at">hybrid             =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="at">kappa_hybrid       =</span> <span class="dv">5</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="at">global_Sigma_gamma =</span> global_Sigma_gamma,  <span class="co"># your global estimate (2 x 2 matrix)</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="at">global_Sigma_theta =</span> global_Sigma_theta   <span class="co"># your global estimate (2 x 2 matrix)</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>)</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(b_exp, se_exp, b_out, se_out,</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>               <span class="at">model =</span> <span class="st">&quot;memo&quot;</span>, <span class="at">control =</span> ctrl_hybrid)</span></code></pre></div>
+<p>If <code>hybrid = TRUE</code> is set but the required global
+argument(s) are missing or have the wrong shape, <code>fusiomr()</code>
+stops with an informative error message before running the sampler.</p>
+</div>
+</div>
+<div id="getting-help" class="section level1">
+<h1>Getting help</h1>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>?fusiomr</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>?parameter_control</span></code></pre></div>
+<p>Bug reports and feature requests: <a href="https://github.com/fsh56/FusioMR-software/issues">github.com/fsh56/FusioMR-software/issues</a>.</p>
+</div>
+<div id="session-info" class="section level1">
+<h1>Session info</h1>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="do">## R version 4.4.3 (2025-02-28)</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="do">## Platform: x86_64-apple-darwin20</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="do">## Running under: macOS Sequoia 15.4.1</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="do">## Matrix products: default</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="do">## BLAS:   /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/lib/libRblas.0.dylib </span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="do">## LAPACK: /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="do">## locale:</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="do">## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="do">## time zone: America/Chicago</span></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="do">## tzcode source: internal</span></span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a><span class="do">## attached base packages:</span></span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a><span class="do">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a><span class="do">## other attached packages:</span></span>
+<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a><span class="do">## [1] FusioMRdev_0.1.0</span></span>
+<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a><span class="do">## loaded via a namespace (and not attached):</span></span>
+<span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a><span class="do">##  [1] digest_0.6.37     R6_2.6.1          invgamma_1.2      fastmap_1.2.0    </span></span>
+<span id="cb14-24"><a href="#cb14-24" tabindex="-1"></a><span class="do">##  [5] xfun_0.53         cachem_1.1.0      knitr_1.50        htmltools_0.5.8.1</span></span>
+<span id="cb14-25"><a href="#cb14-25" tabindex="-1"></a><span class="do">##  [9] rmarkdown_2.29    lifecycle_1.0.5   cli_3.6.6         sass_0.4.10      </span></span>
+<span id="cb14-26"><a href="#cb14-26" tabindex="-1"></a><span class="do">## [13] jquerylib_0.1.4   compiler_4.4.3    rstudioapi_0.17.1 tools_4.4.3      </span></span>
+<span id="cb14-27"><a href="#cb14-27" tabindex="-1"></a><span class="do">## [17] evaluate_1.0.5    bslib_0.9.0       Rcpp_1.1.1        yaml_2.3.10      </span></span>
+<span id="cb14-28"><a href="#cb14-28" tabindex="-1"></a><span class="do">## [21] rlang_1.2.0       jsonlite_2.0.0</span></span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
