@@ -29,6 +29,37 @@ gene expression),where the number of available cis-QTLs as instrumental variable
 applicable to complex trait exposures with a moderate-to-large number of
 IVs. For methodological details, please refer to https://doi.org/10.1016/j.ajhg.2026.03.017.
 
+`fusiomr()` takes four vectors of GWAS summary statistics:
+
+| Argument | Meaning                              |
+|----------|--------------------------------------|
+| `b_exp`  | IV–exposure effect estimates        |
+| `se_exp` | Standard errors of `b_exp`           |
+| `b_out`  | IV–outcome effect estimates         |
+| `se_out` | Standard errors of `b_out`           |
+
+All four must have the same length, and the input data should already be preprocessed.
+FusioMRdev does not perform data preprocessing.
+
+`FusioMR` supports four models via the `model` argument of `fusiomr()`.
+Pick the one that matches your data:
+
+| Model            | Exposure | Outcome | Use when                                              |
+|------------------|----------|---------|-------------------------------------------------------|
+| `seso_uhp_only`  | 1        | 1       | uncorrelated pleiotropy (UHP) is the concern |
+| `seso_with_chp`  | 1        | 1       | correlated pleiotropy (CHP) is the concern   |
+| `semo`           | 1        | 2       | one exposure, two outcomes                     |
+| `memo`           | 2        | 2       | two exposures, two outcomes;      
+
+The returned object is a list with the MR estimates:
+
+| Return  | Meaning |
+|----------------------|--------------------------------------------------------------------------------------------|
+| `est` | Causal effect of exposure on outcome estimate.|
+| `se` | Standard error. |
+| `pval` | Two-sided p-value. |
+| `ci` | 95% credible interval.| 
+
 
 
 # Installation
@@ -70,12 +101,6 @@ fit1 <- fusiomr(d1$b_exp,
                 d1$b_out, 
                 d1$se_out,
                 model = "seso_uhp_only")
-
-# the returned object is a list with the MR estimates:
-fit1$est    # causal effect estiamtes
-fit1$se     # standard error
-fit1$pval   # two-sided p-value
-fit1$ci     # 95% credible interval
 ```
 
 ## Single exposure, Single outcome with CHP: `seso_with_chp`
@@ -90,11 +115,6 @@ fit2 <- fusiomr(d2$b_exp,
                 d2$b_out, 
                 d2$se_out,
                 model = "seso_with_chp")
-
-fit2$est
-fit2$se
-fit2$pval
-fit2$ci
 ```
 
 # FusioMR_m: Multi-outcome MR models accounting for shared pleiotropy
@@ -110,11 +130,6 @@ fit3 <- fusiomr(d3$b_exp,
                 d3$b_out, 
                 d3$se_out,
                 model = "semo")
-
-fit3$est
-fit3$se
-fit3$pval
-fit3$ci
 ```
 
 
@@ -133,13 +148,9 @@ fit4 <- fusiomr(b_exp,
                 b_out, 
                 se_out, 
                 model = "memo")
-fit4$est  
-fit4$se
-fit4$pval
-fit4$ci   
 ```
 
-# Tuning: `parameter_control()`
+# Advanced Parameter Setting: `parameter_control()`
 
 For most users, the defaults are sufficient and `parameter_control()`
 does not need to be called explicitly. When advanced parameter setting is needed, pass a
@@ -147,7 +158,7 @@ customized control list to `fusiomr()`:
 
 A summary of the available tuning parameters:
 
-| Argument             | Purpose                                                                                    |
+| Argument             | Purpose |
 |----------------------|--------------------------------------------------------------------------------------------|
 | `niter`              | Number of Gibbs iterations (default 20000).                                                |
 | `burnin_prop`        | Burn-in proportion in [0, 1) (default 0.5).                                                |
@@ -240,13 +251,4 @@ error message before running the sampler.
 ```{r help, eval = FALSE}
 ?fusiomr
 ?parameter_control
-```
-
-Bug reports and feature requests:
-[github.com/fsh56/FusioMR-software/issues](https://github.com/fsh56/FusioMR-software/issues).
-
-# Session info
-
-```{r session}
-sessionInfo()
 ```

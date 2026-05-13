@@ -359,8 +359,8 @@ outcomes: <code>semo</code></a></li>
 <li><a href="#two-exposures-two-outcomes-memo" id="toc-two-exposures-two-outcomes-memo">Two exposures, Two outcomes:
 <code>memo</code></a></li>
 </ul></li>
-<li><a href="#tuning-parameter_control" id="toc-tuning-parameter_control">Tuning:
-<code>parameter_control()</code></a>
+<li><a href="#advanced-parameter-setting-parameter_control" id="toc-advanced-parameter-setting-parameter_control">Advanced Parameter
+Setting: <code>parameter_control()</code></a>
 <ul>
 <li><a href="#hybrid-empirical-bayes-priors-hybrid-true" id="toc-hybrid-empirical-bayes-priors-hybrid-true">Hybrid
 empirical-Bayes priors (<code>hybrid = TRUE</code>)</a>
@@ -370,7 +370,6 @@ priors</a></li>
 </ul></li>
 </ul></li>
 <li><a href="#getting-help" id="toc-getting-help">Getting help</a></li>
-<li><a href="#session-info" id="toc-session-info">Session info</a></li>
 </ul>
 </div>
 
@@ -386,6 +385,112 @@ variables (IVs) is often limited and horizontal pleiotropy is pervasive.
 FusioMR is also applicable to complex trait exposures with a
 moderate-to-large number of IVs. For methodological details, please
 refer to <a href="https://doi.org/10.1016/j.ajhg.2026.03.017" class="uri">https://doi.org/10.1016/j.ajhg.2026.03.017</a>.</p>
+<p><code>fusiomr()</code> takes four vectors of GWAS summary
+statistics:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>b_exp</code></td>
+<td>IV–exposure effect estimates</td>
+</tr>
+<tr class="even">
+<td><code>se_exp</code></td>
+<td>Standard errors of <code>b_exp</code></td>
+</tr>
+<tr class="odd">
+<td><code>b_out</code></td>
+<td>IV–outcome effect estimates</td>
+</tr>
+<tr class="even">
+<td><code>se_out</code></td>
+<td>Standard errors of <code>b_out</code></td>
+</tr>
+</tbody>
+</table>
+<p>All four must have the same length, and the input data should already
+be preprocessed. FusioMRdev does not perform data preprocessing.</p>
+<p><code>FusioMR</code> supports four models via the <code>model</code>
+argument of <code>fusiomr()</code>. Pick the one that matches your
+data:</p>
+<table>
+<colgroup>
+<col width="19%" />
+<col width="10%" />
+<col width="9%" />
+<col width="59%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Exposure</th>
+<th>Outcome</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>seso_uhp_only</code></td>
+<td>1</td>
+<td>1</td>
+<td>uncorrelated pleiotropy (UHP) is the concern</td>
+</tr>
+<tr class="even">
+<td><code>seso_with_chp</code></td>
+<td>1</td>
+<td>1</td>
+<td>correlated pleiotropy (CHP) is the concern</td>
+</tr>
+<tr class="odd">
+<td><code>semo</code></td>
+<td>1</td>
+<td>2</td>
+<td>one exposure, two outcomes</td>
+</tr>
+<tr class="even">
+<td><code>memo</code></td>
+<td>2</td>
+<td>2</td>
+<td>two exposures, two outcomes;</td>
+</tr>
+</tbody>
+</table>
+<p>The returned object is a list with the MR estimates:</p>
+<table>
+<colgroup>
+<col width="19%" />
+<col width="80%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Return</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>est</code></td>
+<td>Causal effect of exposure on outcome estimate.</td>
+</tr>
+<tr class="even">
+<td><code>se</code></td>
+<td>Standard error.</td>
+</tr>
+<tr class="odd">
+<td><code>pval</code></td>
+<td>Two-sided p-value.</td>
+</tr>
+<tr class="even">
+<td><code>ci</code></td>
+<td>95% credible interval.</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="installation" class="section level1">
 <h1>Installation</h1>
@@ -419,18 +524,7 @@ setting (exposure GWAS sample size = 300, outcome GWAS sample size =
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>                d1<span class="sc">$</span>b_out, </span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>                d1<span class="sc">$</span>se_out,</span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;seso_uhp_only&quot;</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="do">## Running model: seso_uhp_only</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co"># the returned object is a list with the MR estimates:</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>fit1<span class="sc">$</span>est    <span class="co"># causal effect estiamtes</span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="do">## [1] -0.06635131</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>fit1<span class="sc">$</span>se     <span class="co"># standard error</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="do">## [1] 0.01914659</span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>fit1<span class="sc">$</span>pval   <span class="co"># two-sided p-value</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="do">## [1] 0.0005293679</span></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>fit1<span class="sc">$</span>ci     <span class="co"># 95% credible interval</span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="do">##        2.5%       97.5% </span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="do">## -0.10620539 -0.03052028</span></span></code></pre></div>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="do">## Running model: seso_uhp_only</span></span></code></pre></div>
 </div>
 <div id="single-exposure-single-outcome-with-chp-seso_with_chp" class="section level2">
 <h2>Single exposure, Single outcome with CHP:
@@ -445,17 +539,7 @@ illustration.</p>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>                d2<span class="sc">$</span>b_out, </span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>                d2<span class="sc">$</span>se_out,</span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;seso_with_chp&quot;</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="do">## Running model: seso_with_chp</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>fit2<span class="sc">$</span>est</span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="do">## [1] 0.02816078</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>fit2<span class="sc">$</span>se</span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="do">## [1] 0.01289393</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>fit2<span class="sc">$</span>pval</span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="do">## [1] 0.02895974</span></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>fit2<span class="sc">$</span>ci</span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="do">##        2.5%       97.5% </span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="do">## 0.002448981 0.053654100</span></span></code></pre></div>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="do">## Running model: seso_with_chp</span></span></code></pre></div>
 </div>
 </div>
 <div id="fusiomr_m-multi-outcome-mr-models-accounting-for-shared-pleiotropy" class="section level1">
@@ -477,18 +561,7 @@ illustration. (exposure sample size = 300, outcome 1 sample size =
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>                d3<span class="sc">$</span>b_out, </span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                d3<span class="sc">$</span>se_out,</span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;semo&quot;</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="do">## Running model: semo</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>fit3<span class="sc">$</span>est</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="do">## [1] -0.09662373 -0.09296658</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>fit3<span class="sc">$</span>se</span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="do">## [1] 0.04518418 0.05987090</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>fit3<span class="sc">$</span>pval</span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="do">## [1] 0.03248092 0.12047470</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>fit3<span class="sc">$</span>ci</span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="do">##            2.5%       97.5%</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="do">## [1,] -0.1975619 -0.02002633</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="do">## [2,] -0.2240678  0.01235053</span></span></code></pre></div>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="do">## Running model: semo</span></span></code></pre></div>
 </div>
 <div id="two-exposures-two-outcomes-memo" class="section level2">
 <h2>Two exposures, Two outcomes: <code>memo</code></h2>
@@ -502,15 +575,11 @@ both the exposure side and the outcome side: column <span class="math inline">\(
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>                se_exp, </span>
 <span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>                b_out, </span>
 <span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>                se_out, </span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;memo&quot;</span>)</span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>fit4<span class="sc">$</span>est  </span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>fit4<span class="sc">$</span>se</span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>fit4<span class="sc">$</span>pval</span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>fit4<span class="sc">$</span>ci   </span></code></pre></div>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;memo&quot;</span>)</span></code></pre></div>
 </div>
 </div>
-<div id="tuning-parameter_control" class="section level1">
-<h1>Tuning: <code>parameter_control()</code></h1>
+<div id="advanced-parameter-setting-parameter_control" class="section level1">
+<h1>Advanced Parameter Setting: <code>parameter_control()</code></h1>
 <p>For most users, the defaults are sufficient and
 <code>parameter_control()</code> does not need to be called explicitly.
 When advanced parameter setting is needed, pass a customized control
@@ -687,38 +756,6 @@ stops with an informative error message before running the sampler.</p>
 <h1>Getting help</h1>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>?fusiomr</span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>?parameter_control</span></code></pre></div>
-<p>Bug reports and feature requests: <a href="https://github.com/fsh56/FusioMR-software/issues">github.com/fsh56/FusioMR-software/issues</a>.</p>
-</div>
-<div id="session-info" class="section level1">
-<h1>Session info</h1>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="do">## R version 4.4.3 (2025-02-28)</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="do">## Platform: x86_64-apple-darwin20</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="do">## Running under: macOS Sequoia 15.4.1</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="do">## Matrix products: default</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="do">## BLAS:   /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/lib/libRblas.0.dylib </span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="do">## LAPACK: /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="do">## locale:</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="do">## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="do">## time zone: America/Chicago</span></span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="do">## tzcode source: internal</span></span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="do">## attached base packages:</span></span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="do">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="do">## other attached packages:</span></span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="do">## [1] FusioMRdev_0.1.0</span></span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="do">## loaded via a namespace (and not attached):</span></span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="do">##  [1] digest_0.6.37     R6_2.6.1          invgamma_1.2      fastmap_1.2.0    </span></span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="do">##  [5] xfun_0.53         cachem_1.1.0      knitr_1.50        htmltools_0.5.8.1</span></span>
-<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="do">##  [9] rmarkdown_2.29    lifecycle_1.0.5   cli_3.6.6         sass_0.4.10      </span></span>
-<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="do">## [13] jquerylib_0.1.4   compiler_4.4.3    rstudioapi_0.17.1 tools_4.4.3      </span></span>
-<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="do">## [17] evaluate_1.0.5    bslib_0.9.0       Rcpp_1.1.1        yaml_2.3.10      </span></span>
-<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a><span class="do">## [21] rlang_1.2.0       jsonlite_2.0.0</span></span></code></pre></div>
 </div>
 
 
