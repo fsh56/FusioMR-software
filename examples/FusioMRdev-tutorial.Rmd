@@ -1,5 +1,5 @@
 ---
-title: "FusioMR Tutorial"
+title: "FusioMR Software Tutorial"
 output:
   rmarkdown::html_vignette:
     toc: true
@@ -29,6 +29,8 @@ gene expression),where the number of available cis-QTLs as instrumental variable
 applicable to complex trait exposures with a moderate-to-large number of
 IVs. For methodological details, please refer to https://doi.org/10.1016/j.ajhg.2026.03.017.
 
+
+
 # Installation
 
 FusioMRdev requires **R >= 4.3.0** and a working C++ compiler:
@@ -52,7 +54,9 @@ suppressMessages(library(FusioMRdev))
 The packages `Rcpp`, `RcppArmadillo`, and `invgamma` are pulled in
 automatically as dependencies.
 
-# FusioMRs: Single-outcome MR model allowing pleiotropy
+
+
+# FusioMR_s: Single-outcome MR model allowing pleiotropy
 ## Single Exposure, Single Outcome: `seso_uhp_only`
 
 The `seso_uhp_only` model handles the most common MR setup: one exposure,
@@ -93,7 +97,7 @@ fit2$pval
 fit2$ci
 ```
 
-# FusioMRm: Multi-outcome MR models accounting for shared pleiotropy
+# FusioMR_m: Multi-outcome MR models accounting for shared pleiotropy
 ## Single exposure, Two outcomes: `semo`
 
 `semo` jointly analyzes one exposure and two outcomes. The input format differs from the single-outcome models: `b_out` and `se_out` must be `K x 2` matrices, where column $j$ contains summary
@@ -178,7 +182,7 @@ fit <- fusiomr(b_exp,
 
 
 
-# Hybrid empirical-Bayes priors (`hybrid = TRUE`)
+## Hybrid empirical-Bayes priors (`hybrid = TRUE`)
 
 By default, FusioMR sets the variance priors using a method-of-moments
 estimate computed from the input IVs alone (the *local* moment).
@@ -206,7 +210,7 @@ The typical workflow is two-pass:
 2. **Refit the target exposure** with `hybrid = TRUE`, passing the
    global centers to `parameter_control()`.
 
-## pseudo-code with hybrid priors
+### pseudo-code with hybrid priors
 
 ```{r hybrid-seso, eval = FALSE}
 # After computing global_mean_gamma and global_mean_theta from a reference scan:
@@ -218,34 +222,13 @@ ctrl_hybrid <- parameter_control(
   global_mean_gamma = global_mean_gamma,   # your global estimate (scalar)
   global_mean_theta = global_mean_theta    # your global estimate (scalar)
 )
-fit <- fusiomr(b_exp, se_exp, b_out, se_out,
-               model = "seso_uhp_only", control = ctrl_hybrid)
 
-# semo
-ctrl_hybrid <- parameter_control(
-  hybrid             = TRUE,
-  kappa_hybrid       = 5,
-  global_mean_gamma  = global_mean_gamma,   # your global estimate (scalar)
-  global_Sigma_theta = global_Sigma_theta   # your global estimate (2 x 2 matrix)
-)
-
-fit <- fusiomr(b_exp, se_exp, b_out, se_out,
-               model = "semo", control = ctrl_hybrid)
-
-# memo
-ctrl_hybrid <- parameter_control(
-  hybrid             = TRUE,
-  kappa_hybrid       = 5,
-  global_Sigma_gamma = global_Sigma_gamma,  # your global estimate (2 x 2 matrix)
-  global_Sigma_theta = global_Sigma_theta   # your global estimate (2 x 2 matrix)
-)
-
-fit <- fusiomr(b_exp, 
-               se_exp, 
-               b_out, 
-               se_out,
-               model = "memo", 
-               control = ctrl_hybrid)
+fit_hybrid <- fusiomr(b_exp, 
+                      se_exp, 
+                      b_out, 
+                      se_out,
+                      model = "seso_uhp_only", 
+                      control = ctrl_hybrid)
 ```
 
 If `hybrid = TRUE` is set but the required global argument(s) are
