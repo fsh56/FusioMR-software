@@ -2,18 +2,19 @@
 
 > **F**lexible, **U**nified and ver**S**atile Mendel**I**an Rand**O**mization framework — **dev**elopment version.
 
-An R package for FusioMR, a flexible Bayesian hierarchical framework for single- and multi-outcome Mendelian randomization,
-designed for molecular trait exposures and applicable to complex traits, with robust performance under limited instruments.
+`FusioMRdev` is the R implementation of FusioMR, a Bayesian hierarchical framework for single- and multi-outcome Mendelian randomization (MR) using GWAS summary statistics. It is designed primarily for molecular trait exposures (e.g., gene expression), where the number of available cis-QTLs as instrumental variables (IVs) is often limited and horizontal pleiotropy is pervasive. FusioMR is also applicable to complex trait exposures with a moderate-to-large number of IVs. For methodological details, please refer to https://doi.org/10.1016/j.ajhg.2026.03.017.
 
 > **Note**: This is the development version of FusioMR. For the stable
 > release, see [kangbw702/FusioMR](https://github.com/kangbw702/FusioMR).
 
 ## Installation
 
-Requires **R >= 4.3.0** and a working C++ compiler:
+`FusioMRdev` requires **R >= 4.3.0** and a working C++ compiler:
 
 - **macOS**: `xcode-select --install`
 - **Windows**: install [Rtools](https://cran.r-project.org/bin/windows/Rtools/)
+
+Install the development version from GitHub:
 
 ```r
 # install.packages("devtools")
@@ -23,10 +24,13 @@ library(FusioMRdev)
 
 ### Dependencies
 
-`FusioMRdev` automatically pulls in the following packages during installation:
+The following R packages are pulled in automatically as dependencies:
 
-- `Rcpp`, `RcppArmadillo` — for the Gibbs samplers
-- `invgamma` — for inverse-gamma sampling
+| Package          | Minimum version | Purpose                                  |
+|------------------|-----------------|------------------------------------------|
+| `Rcpp`           | >= 1.0.10       | R / C++ interface for the Gibbs samplers |
+| `RcppArmadillo`  | >= 0.12.0.0     | Linear algebra in the Gibbs samplers     |
+| `invgamma`       | >= 1.1          | Inverse-gamma sampling                   |
 
 If `devtools::install_github()` fails to fetch them, install manually:
 
@@ -34,64 +38,62 @@ If `devtools::install_github()` fails to fetch them, install manually:
 install.packages(c("Rcpp", "RcppArmadillo", "invgamma"))
 ```
 
-## Choosing a Model
+## Overview
 
-`FusioMRdev` supports four models via the `model` argument of `fusiomr()`.
-Pick the one that matches your data and concerns about pleiotropy:
+The main entry point is `fusiomr()`, which takes four vectors of GWAS
+summary statistics:
 
-| Model            | Exposure | Outcome | Use when                                              |
-|------------------|----------|---------|-------------------------------------------------------|
-| `seso_uhp_only`  | 1        | 1       | uncorrelated pleiotropy (UHP) is the concern |
-| `seso_with_chp`  | 1        | 1       | correlated pleiotropy (CHP) is the concern   |
+| Argument | Meaning                       |
+|----------|-------------------------------|
+| `b_exp`  | IV–exposure effect estimates  |
+| `se_exp` | Standard errors of `b_exp`    |
+| `b_out`  | IV–outcome effect estimates   |
+| `se_out` | Standard errors of `b_out`    |
+
+All four must have the same length, and the input data should already be
+preprocessed (LD-clumped, IV-selected, harmonized). `FusioMRdev` does not
+perform data preprocessing.
+
+`FusioMRdev` supports four models via the `model` argument. Pick the one
+that matches your data:
+
+| Model            | Exposure | Outcome | Use when                                       |
+|------------------|----------|---------|------------------------------------------------|
+| `seso_uhp_only`  | 1        | 1       | uncorrelated pleiotropy (UHP) is the concern   |
+| `seso_with_chp`  | 1        | 1       | correlated pleiotropy (CHP) is the concern     |
 | `semo`           | 1        | 2       | one exposure, two outcomes                     |
-| `memo`           | 2        | 2       | two exposures, two outcomes;                        |
+| `memo`           | 2        | 2       | two exposures, two outcomes                    |
 
 For `semo`, pass `b_out` / `se_out` as a `K x 2` matrix.
-For `memo`, pass `b_exp` / `se_exp` and `b_out` / `se_out` as `K x 2`matrices.
+For `memo`, pass `b_exp` / `se_exp` **and** `b_out` / `se_out` as
+`K x 2` matrices.
+
+The returned object is a list with the MR estimates:
+
+| Return | Meaning                          |
+|--------|----------------------------------|
+| `est`  | Causal effect estimate           |
+| `se`   | Standard error                   |
+| `pval` | Two-sided p-value                |
+| `ci`   | 95% credible interval            |
 
 ## Quick Start
 
-## Main Function
-
 ```r
-fusiomr(b_exp, se_exp, b_out, se_out,
-        model   = "seso_uhp_only",
-        control = parameter_control(),
-        verbose = FALSE)
+library(FusioMRdev)
+
+# Load an example dataset (single exposure, single outcome, UHP only)
+d <- readRDS("examples/data/seso_uhp_only_example.rds")
+
+fit <- fusiomr(d$b_exp, d$se_exp, d$b_out, d$se_out,
+               model = "seso_uhp_only")
+
+fit$est; fit$se; fit$pval; fit$ci
 ```
 
-| Argument   | Description                                                                                |
-|------------|--------------------------------------------------------------------------------------------|
-| `b_exp`    | SNP-exposure effects. Vector for one exposure; K x 2 matrix for `memo`.                    |
-| `se_exp`   | Standard errors of `b_exp`. Same shape as `b_exp`.                                         |
-| `b_out`    | SNP-outcome effects. Vector for one outcome; K x 2 matrix for `semo` and `memo`.           |
-| `se_out`   | Standard errors of `b_out`. Same shape as `b_out`.                                         |
-| `model`    | One of `"seso_uhp_only"`, `"seso_with_chp"`, `"semo"`, `"memo"`.                            |
-| `control`  | Advanced settings from `parameter_control()`. Defaults are tuned for typical MR settings.  |
-| `verbose`  | If `TRUE`, print progress messages and a results summary.                                  |
-
-> **Input note:** `FusioMRdev` assumes you have already performed upstream
-> IV selection (e.g. LD clumping, p-value filtering). All input SNPs are
-> treated as instrumental variables.
-
-## Advanced Usage
-
-For most users, default settings are sufficient. To tune MCMC length,
-IV selection, or empirical-Bayes priors, pass a customized
-`parameter_control()`:
-
-```r
-fit <- fusiomr(b_exp, se_exp, b_out, se_out,
-               model = "seso_uhp_only",
-               control = parameter_control(
-                 niter = 30000,                  # longer MCMC
-                 z_thresh = qnorm(1 - 5e-8 / 2),    # winner's-curse correction
-                 rho_ov = 0.2                     # sample overlap
-               ))
-```
-
-See `?parameter_control` for the full list of advanced options.
-
+For full examples covering all four models, advanced parameter tuning, and
+hybrid empirical-Bayes priors, see the
+[tutorial vignette](vignettes/FusioMRdev-tutorial.Rmd).
 
 ## Simulation and Method Validation
 
