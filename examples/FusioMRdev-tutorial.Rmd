@@ -19,82 +19,19 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Introduction
-
-This vignette walks through the usage of the **FusioMRdev** package.
-FusioMR is a Bayesian Mendelian randomization (MR) framework for estimating
-the causal effect of an exposure on one or more outcomes from GWAS summary
-statistics. It is designed primarily for molecular trait exposures (e.g.,
-gene expression),where the number of available cis-QTLs as instrumental variables (IVs) is often limited and horizontal pleiotropy is pervasive. FusioMR is also
-applicable to complex trait exposures with a moderate-to-large number of
-IVs. For methodological details, please refer to https://doi.org/10.1016/j.ajhg.2026.03.017.
-
-`fusiomr()` takes four vectors of GWAS summary statistics:
-
-| Argument | Meaning                              |
-|----------|--------------------------------------|
-| `b_exp`  | IV–exposure effect estimates        |
-| `se_exp` | Standard errors of `b_exp`           |
-| `b_out`  | IV–outcome effect estimates         |
-| `se_out` | Standard errors of `b_out`           |
-
-All four must have the same length, and the input data should already be preprocessed.
-FusioMRdev does not perform data preprocessing.
-
-`FusioMR` supports four models via the `model` argument of `fusiomr()`.
-Pick the one that matches your data:
-
-| Model            | Exposure | Outcome | Use when                                              |
-|------------------|----------|---------|-------------------------------------------------------|
-| `seso_uhp_only`  | 1        | 1       | uncorrelated pleiotropy (UHP) is the concern |
-| `seso_with_chp`  | 1        | 1       | correlated pleiotropy (CHP) is the concern   |
-| `semo`           | 1        | 2       | one exposure, two outcomes                     |
-| `memo`           | 2        | 2       | two exposures, two outcomes;      
-
-The returned object is a list with the MR estimates:
-
-| Return  | Meaning |
-|----------------------|--------------------------------------------------------------------------------------------|
-| `est` | Causal effect of exposure on outcome estimate.|
-| `se` | Standard error. |
-| `pval` | Two-sided p-value. |
-| `ci` | 95% credible interval.| 
-
-
-
-# Installation
-
-FusioMRdev requires **R >= 4.3.0** and a working C++ compiler:
-
-- **macOS**: `xcode-select --install`
-- **Windows**: install [Rtools](https://cran.r-project.org/bin/windows/Rtools/)
-
-Install the development version from GitHub:
-
-```{r install, eval = FALSE}
-# install.packages("devtools")
-devtools::install_github("fsh56/FusioMR-software")
+```{r load, include = FALSE}
+library(FusioMRdev)
 ```
 
-Load the package:
+This vignette demonstrates how to use `FusioMRdev` for single- and
+multi-outcome Mendelian randomization with GWAS summary statistics.
+For installation instructions, package overview, and a description of
+input / output formats, see the
+[README](https://github.com/fsh56/FusioMR-software).
 
-```{r load}
-suppressMessages(library(FusioMRdev))
-```
-
-The following R packages are needed as dependencies:
-
-| Package          | Minimum version | Purpose                                  |
-|------------------|-----------------|------------------------------------------|
-| `Rcpp`           | >= 1.0.10       | R / C++ interface for the Gibbs samplers |
-| `RcppArmadillo`  | >= 0.12.0.0     | Linear algebra in the Gibbs samplers     |
-| `invgamma`       | >= 1.1          | Inverse-gamma sampling                   |
-
-If `devtools::install_github()` fails to fetch them, install manually:
-
-```{r install-deps, eval = FALSE}
-install.packages(c("Rcpp", "RcppArmadillo", "invgamma"))
-```
+The example datasets used below are available in the
+[examples/data/](https://github.com/fsh56/FusioMR-software/tree/main/examples/data)
+folder of the GitHub repository.
 
 # FusioMR_s: Single-outcome MR model allowing pleiotropy
 
