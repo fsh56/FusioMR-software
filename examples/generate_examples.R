@@ -18,7 +18,7 @@ dir.create("data", showWarnings = FALSE)
 # ---- 1. seso_uhp_only ------------------------------------------------------
 P_CUTOFF <- 1e-3
 
-set.seed(13)
+set.seed(4)
 params_seso_uhp <- list(
   m       = 200,    
   nx      = 300,    
@@ -50,7 +50,7 @@ seso_uhp_data <- list(
   params    = params_seso_uhp,
   p_cutoff  = P_CUTOFF,
   n_iv      = sum(sel),
-  seed      = 13
+  seed      = 4
 )
 saveRDS(seso_uhp_data, file = "data/seso_uhp_only_example.rds")
 cat(sprintf("Saved seso_uhp_only_example.rds : %d IVs selected, true beta = %.2f\n",

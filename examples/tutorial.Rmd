@@ -1,0 +1,243 @@
+---
+title: "FusioMR Software Tutorial"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{FusioMRdev Tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "##",
+  prompt = FALSE,
+  warning = FALSE
+)
+```
+
+# Introduction
+
+This vignette walks through the usage of the **FusioMRdev** package.
+FusioMR is a Bayesian Mendelian randomization (MR) framework for estimating
+the causal effect of an exposure on one or more outcomes from GWAS summary
+statistics. It is designed primarily for molecular trait exposures (e.g.,
+gene expression),where the number of available cis-QTLs as instrumental variables (IVs) is often limited and horizontal pleiotropy is pervasive. FusioMR is also
+applicable to complex trait exposures with a moderate-to-large number of
+IVs. For methodological details, please refer to https://doi.org/10.1016/j.ajhg.2026.03.017.
+
+
+
+# Installation
+
+FusioMRdev requires **R >= 4.3.0** and a working C++ compiler:
+
+- **macOS**: `xcode-select --install`
+- **Windows**: install [Rtools](https://cran.r-project.org/bin/windows/Rtools/)
+
+Install the development version from GitHub:
+
+```{r install, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("fsh56/FusioMR-software")
+```
+
+Load the package:
+
+```{r load}
+suppressMessages(library(FusioMRdev))
+```
+
+The packages `Rcpp`, `RcppArmadillo`, and `invgamma` are pulled in
+automatically as dependencies.
+
+
+
+# FusioMR_s: Single-outcome MR model allowing pleiotropy
+## Single Exposure, Single Outcome: `seso_uhp_only`
+
+The `seso_uhp_only` model handles the most common MR setup: one exposure,
+one outcome, and uncorrelated horizontal pleiotropy as the main concern. The following is the function usage example with pre-generated example dataset, simulated udner the limited-IV
+TWMR setting (exposure GWAS sample size = 300, outcome GWAS sample size = 20,000).
+
+```{r seso-uhp-load}
+d1 <- readRDS("data/seso_uhp_only_example.rds")
+fit1 <- fusiomr(d1$b_exp, 
+                d1$se_exp, 
+                d1$b_out, 
+                d1$se_out,
+                model = "seso_uhp_only")
+
+# the returned object is a list with the MR estimates:
+fit1$est    # causal effect estiamtes
+fit1$se     # standard error
+fit1$pval   # two-sided p-value
+fit1$ci     # 95% credible interval
+```
+
+## Single exposure, Single outcome with CHP: `seso_with_chp`
+
+When some IVs are suspected of having correlated horizontal pleiotropy, use `seso_with_chp`. 
+We use a complex-trait example (exposure and outcome GWAS sample sizes both 20,000 for model illustration.
+
+```{r seso-chp-fit}
+d2 <- readRDS("data/seso_with_chp_example.rds")
+fit2 <- fusiomr(d2$b_exp, 
+                d2$se_exp, 
+                d2$b_out, 
+                d2$se_out,
+                model = "seso_with_chp")
+
+fit2$est
+fit2$se
+fit2$pval
+fit2$ci
+```
+
+# FusioMR_m: Multi-outcome MR models accounting for shared pleiotropy
+## Single exposure, Two outcomes: `semo`
+
+`semo` jointly analyzes one exposure and two outcomes. The input format differs from the single-outcome models: `b_out` and `se_out` must be `K x 2` matrices, where column $j$ contains summary
+statistics for outcome $j$. We use a TWMR-style example with one shared exposure and two outcomes for illustration. (exposure sample size = 300, outcome 1 sample size = 80,000, outcome 2 sample size = 20,000).
+
+```{r semo-fit}
+d3 <- readRDS("data/semo_example.rds")
+fit3 <- fusiomr(d3$b_exp, 
+                d3$se_exp, 
+                d3$b_out, 
+                d3$se_out,
+                model = "semo")
+
+fit3$est
+fit3$se
+fit3$pval
+fit3$ci
+```
+
+
+## Two exposures, Two outcomes: `memo`
+
+`memo` is the model which jointly analyzes two correlated exposures and two correlated outcomes, accounting for both UHP and CHP. The summary-statistics inputs become `K x 2` matrices for
+both the exposure side and the outcome side: column $j$ corresponds to
+exposure $j$ (or outcome $j$).
+
+The call signature is:
+
+```{r memo-call, eval = FALSE}
+# b_exp, se_exp, b_out, se_out are all K x 2 matrices
+fit4 <- fusiomr(b_exp, 
+                se_exp, 
+                b_out, 
+                se_out, 
+                model = "memo")
+fit4$est  
+fit4$se
+fit4$pval
+fit4$ci   
+```
+
+# Tuning: `parameter_control()`
+
+For most users, the defaults are sufficient and `parameter_control()`
+does not need to be called explicitly. When advanced parameter setting is needed, pass a
+customized control list to `fusiomr()`:
+
+A summary of the available tuning parameters:
+
+| Argument             | Purpose                                                                                    |
+|----------------------|--------------------------------------------------------------------------------------------|
+| `niter`              | Number of Gibbs iterations (default 20000).                                                |
+| `burnin_prop`        | Burn-in proportion in [0, 1) (default 0.5).                                                |
+| `c_gamma`, `c_theta` | Prior weight per IV for $\sigma^2_\gamma$ and $\sigma^2_\theta$. Larger values make the prior more concentrated around its mean. |
+| `kappa_gamma`, `kappa_theta` | Conservative inflation multipliers (>= 1) for the prior means.                     |
+| `Kmin`, `Kmax`       | Floor and cap on $K$ when computing prior shape parameters.                                |
+| `rho_ov`             | Sampling correlation between exposure and outcome due to sample overlap, in [-1, 1].       |
+| `z_thresh`           | Optional $|Z_\gamma|$ selection threshold (winner's-curse correction). For p = 5e-8 two-sided, use `qnorm(1 - 5e-8/2)`. |
+| `trim`               | Tail probability for winsorized moments (default 0.1).                                     |
+| `hybrid`             | Logical; enable hybrid empirical-Bayes priors (see next section).                          |
+| `kappa_hybrid`       | Pooling strength for hybrid mode; larger values shrink the local moment toward the global. |
+| `global_mean_gamma`, `global_mean_theta` | Global EB centers (scalars), required for hybrid mode in `seso_*` models. |
+| `global_Sigma_gamma`, `global_Sigma_theta` | Global EB centers (2x2 matrices), required for hybrid mode in `semo` / `memo`. |
+
+See `?parameter_control` for full details.
+
+
+```{r control-example, eval = FALSE}
+ctrl <- parameter_control(
+  niter = 30000,                   # longer MCMC
+  z_thresh = qnorm(1 - 5e-8 / 2),  # winner's-curse correction
+  rho_ov  = 0.2                    # sample overlap correction
+)
+
+fit <- fusiomr(b_exp, 
+               se_exp, 
+               b_out, 
+               se_out,
+               model = "seso_uhp_only", 
+               control = ctrl)
+```
+
+
+
+## Hybrid empirical-Bayes priors (`hybrid = TRUE`)
+
+By default, FusioMR sets the variance priors using a method-of-moments
+estimate computed from the input IVs alone (the *local* moment).
+In gene-region-specific TWMR analyses where the number of IVs per region
+is small, the local moment can be noisy. The hybrid mode pools the local
+moment with a global empirical-Bayes center estimated from a larger
+reference set.
+
+Setting `hybrid = TRUE` requires the user to supply the appropriate
+global center(s) for the chosen model:
+
+| Model           | Required global argument(s)                           | Type            |
+|-----------------|-------------------------------------------------------|-----------------|
+| `seso_uhp_only` | `global_mean_gamma`, `global_mean_theta`              | scalar, scalar  |
+| `seso_with_chp` | `global_mean_gamma`, `global_mean_theta`              | scalar, scalar  |
+| `semo`          | `global_mean_gamma`, `global_Sigma_theta`             | scalar, 2x2 mat |
+| `memo`          | `global_Sigma_gamma`, `global_Sigma_theta`            | 2x2 mat, 2x2 mat |
+
+The typical workflow is two-pass:
+
+1. **Estimate the global centers** by running FusioMR on a large
+   reference set of exposures (e.g., all genes in a TWMR scan) and
+   summarizing the per-exposure local moments (e.g., taking the median
+   across exposures).
+2. **Refit the target exposure** with `hybrid = TRUE`, passing the
+   global centers to `parameter_control()`.
+
+### pseudo-code with hybrid priors
+
+```{r hybrid-seso, eval = FALSE}
+# After computing global_mean_gamma and global_mean_theta from a reference scan:
+
+# seso example
+ctrl_hybrid <- parameter_control(
+  hybrid            = TRUE,
+  kappa_hybrid      = 5,
+  global_mean_gamma = global_mean_gamma,   # your global estimate (scalar)
+  global_mean_theta = global_mean_theta    # your global estimate (scalar)
+)
+
+fit_hybrid <- fusiomr(b_exp, 
+                      se_exp, 
+                      b_out, 
+                      se_out,
+                      model = "seso_uhp_only", 
+                      control = ctrl_hybrid)
+```
+
+If `hybrid = TRUE` is set but the required global argument(s) are
+missing or have the wrong shape, `fusiomr()` stops with an informative
+error message before running the sampler.
+
+# Getting help
+
+```{r help, eval = FALSE}
+?fusiomr
+?parameter_control
+```

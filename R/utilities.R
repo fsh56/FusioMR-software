@@ -22,7 +22,8 @@ get_normal_ci <- function(m, se, alpha = 0.05) {
 get_summary <- function(draws) {
   m = mean(draws)
   s = stats::sd(draws)
-  pval = 2 * stats::pnorm(abs(m / s), lower.tail = FALSE)
+  # log-space computation to avoid underflow for large z
+  pval = exp(log(2) + stats::pnorm(abs(m / s), lower.tail = FALSE, log.p = TRUE))
   list(beta_est = m, beta_se = s, beta_pval = pval,
        ci_emp = get_empirical_ci(draws),
        ci_normal = get_normal_ci(m, s))
