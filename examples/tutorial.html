@@ -422,14 +422,14 @@ setting (exposure GWAS sample size = 300, outcome GWAS sample size =
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co"># the returned object is a list with the MR estimates:</span></span>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>fit1<span class="sc">$</span>est    <span class="co"># causal effect estiamtes</span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="do">## [1] 0.04156526</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="do">## [1] 0.04365121</span></span>
 <span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>fit1<span class="sc">$</span>se     <span class="co"># standard error</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="do">## [1] 0.03273808</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="do">## [1] 0.0326223</span></span>
 <span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>fit1<span class="sc">$</span>pval   <span class="co"># two-sided p-value</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="do">## [1] 0.2042162</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="do">## [1] 0.1808708</span></span>
 <span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>fit1<span class="sc">$</span>ci     <span class="co"># 95% credible interval</span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="do">##        2.5%       97.5% </span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="do">## -0.02194776  0.10928301</span></span></code></pre></div>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="do">##       2.5%      97.5% </span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="do">## -0.0210476  0.1096475</span></span></code></pre></div>
 </div>
 <div id="single-exposure-single-outcome-with-chp-seso_with_chp" class="section level2">
 <h2>Single exposure, Single outcome with CHP:
@@ -447,14 +447,14 @@ illustration.</p>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="do">## Running model: seso_with_chp</span></span>
 <span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
 <span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>fit2<span class="sc">$</span>est</span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="do">## [1] 0.02827119</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="do">## [1] 0.02817578</span></span>
 <span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>fit2<span class="sc">$</span>se</span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="do">## [1] 0.01267742</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="do">## [1] 0.01286736</span></span>
 <span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>fit2<span class="sc">$</span>pval</span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="do">## [1] 0.02574463</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="do">## [1] 0.02854526</span></span>
 <span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>fit2<span class="sc">$</span>ci</span>
 <span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="do">##        2.5%       97.5% </span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="do">## 0.003134959 0.054045641</span></span></code></pre></div>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="do">## 0.002923455 0.052676299</span></span></code></pre></div>
 </div>
 </div>
 <div id="fusiomr_m-multi-outcome-mr-models-accounting-for-shared-pleiotropy" class="section level1">
@@ -479,15 +479,15 @@ illustration. (exposure sample size = 300, outcome 1 sample size =
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="do">## Running model: semo</span></span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>fit3<span class="sc">$</span>est</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="do">## [1] -0.09148867 -0.08949332</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="do">## [1] -0.09114189 -0.08612506</span></span>
 <span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>fit3<span class="sc">$</span>se</span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="do">## [1] 0.04694830 0.06303753</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="do">## [1] 0.05242293 0.06681482</span></span>
 <span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>fit3<span class="sc">$</span>pval</span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="do">## [1] 0.05132992 0.15569992</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="do">## [1] 0.08210719 0.19739413</span></span>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>fit3<span class="sc">$</span>ci</span>
 <span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="do">##            2.5%      97.5%</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="do">## [1,] -0.2009759 -0.0102665</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="do">## [2,] -0.2407483  0.0277145</span></span></code></pre></div>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="do">## [1,] -0.2063438 0.01752892</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="do">## [2,] -0.2344667 0.05832925</span></span></code></pre></div>
 </div>
 <div id="two-exposures-two-outcomes-memo" class="section level2">
 <h2>Two exposures, Two outcomes: <code>memo</code></h2>

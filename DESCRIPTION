@@ -14,11 +14,11 @@ LazyData: true
 Depends: R (>= 4.3.0)
 Imports:
     Rcpp (>= 1.0.10),
-    invgamma,
+    invgamma (>= 1.1),
     stats
 LinkingTo:
     Rcpp,
-    RcppArmadillo
+    RcppArmadillo (>= 0.12.0.0)
 Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

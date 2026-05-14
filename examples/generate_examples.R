@@ -18,7 +18,7 @@ dir.create("data", showWarnings = FALSE)
 # ---- 1. seso_uhp_only ------------------------------------------------------
 P_CUTOFF <- 1e-3
 
-set.seed(4)
+set.seed(13)
 params_seso_uhp <- list(
   m       = 200,    
   nx      = 300,    
@@ -50,14 +50,14 @@ seso_uhp_data <- list(
   params    = params_seso_uhp,
   p_cutoff  = P_CUTOFF,
   n_iv      = sum(sel),
-  seed      = 4
+  seed      = 13
 )
 saveRDS(seso_uhp_data, file = "data/seso_uhp_only_example.rds")
 cat(sprintf("Saved seso_uhp_only_example.rds : %d IVs selected, true beta = %.2f\n",
             seso_uhp_data$n_iv, seso_uhp_data$true_beta))
 
 # ---- 2. seso_with_chp ------------------------------------------------------
-set.seed(2024101)
+set.seed(4)
 P_CUTOFF_CHP <- 1e-5   
 params_seso_chp <- list(
   m       = 200,
@@ -89,7 +89,7 @@ seso_chp_data <- list(
   params    = params_seso_chp,
   p_cutoff  = P_CUTOFF_CHP,
   n_iv      = sum(sel2),
-  seed      = 2024101
+  seed      = 4
 )
 saveRDS(seso_chp_data, file = "data/seso_with_chp_example.rds")
 cat(sprintf("Saved seso_with_chp_example.rds : %d IVs selected, true beta = %.3f\n",

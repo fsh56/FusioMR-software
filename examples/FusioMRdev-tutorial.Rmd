@@ -82,10 +82,19 @@ Load the package:
 suppressMessages(library(FusioMRdev))
 ```
 
-The packages `Rcpp`, `RcppArmadillo`, and `invgamma` are pulled in
-automatically as dependencies.
+The following R packages are needed as dependencies:
 
+| Package          | Minimum version | Purpose                                  |
+|------------------|-----------------|------------------------------------------|
+| `Rcpp`           | >= 1.0.10       | R / C++ interface for the Gibbs samplers |
+| `RcppArmadillo`  | >= 0.12.0.0     | Linear algebra in the Gibbs samplers     |
+| `invgamma`       | >= 1.1          | Inverse-gamma sampling                   |
 
+If `devtools::install_github()` fails to fetch them, install manually:
+
+```{r install-deps, eval = FALSE}
+install.packages(c("Rcpp", "RcppArmadillo", "invgamma"))
+```
 
 # FusioMR_s: Single-outcome MR model allowing pleiotropy
 ## Single Exposure, Single Outcome: `seso_uhp_only`
