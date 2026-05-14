@@ -505,8 +505,41 @@ compiler:</p>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;fsh56/FusioMR-software&quot;</span>)</span></code></pre></div>
 <p>Load the package:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">suppressMessages</span>(<span class="fu">library</span>(FusioMRdev))</span></code></pre></div>
-<p>The packages <code>Rcpp</code>, <code>RcppArmadillo</code>, and
-<code>invgamma</code> are pulled in automatically as dependencies.</p>
+<p>The following R packages are needed as dependencies:</p>
+<table>
+<colgroup>
+<col width="23%" />
+<col width="22%" />
+<col width="54%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Minimum version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Rcpp</code></td>
+<td>&gt;= 1.0.10</td>
+<td>R / C++ interface for the Gibbs samplers</td>
+</tr>
+<tr class="even">
+<td><code>RcppArmadillo</code></td>
+<td>&gt;= 0.12.0.0</td>
+<td>Linear algebra in the Gibbs samplers</td>
+</tr>
+<tr class="odd">
+<td><code>invgamma</code></td>
+<td>&gt;= 1.1</td>
+<td>Inverse-gamma sampling</td>
+</tr>
+</tbody>
+</table>
+<p>If <code>devtools::install_github()</code> fails to fetch them,
+install manually:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">&quot;Rcpp&quot;</span>, <span class="st">&quot;RcppArmadillo&quot;</span>, <span class="st">&quot;invgamma&quot;</span>))</span></code></pre></div>
 </div>
 <div id="fusiomr_s-single-outcome-mr-model-allowing-pleiotropy" class="section level1">
 <h1>FusioMR_s: Single-outcome MR model allowing pleiotropy</h1>
@@ -514,32 +547,51 @@ compiler:</p>
 <h2>Single Exposure, Single Outcome: <code>seso_uhp_only</code></h2>
 <p>The <code>seso_uhp_only</code> model handles the most common MR
 setup: one exposure, one outcome, and uncorrelated horizontal pleiotropy
-as the main concern. The following is the function usage example with
-pre-generated example dataset, simulated udner the limited-IV TWMR
-setting (exposure GWAS sample size = 300, outcome GWAS sample size =
-20,000).</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>d1 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/seso_uhp_only_example.rds&quot;</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(d1<span class="sc">$</span>b_exp, </span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>                d1<span class="sc">$</span>se_exp, </span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>                d1<span class="sc">$</span>b_out, </span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>                d1<span class="sc">$</span>se_out,</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;seso_uhp_only&quot;</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="do">## Running model: seso_uhp_only</span></span></code></pre></div>
+as the main concern. The following is the function usage example with a
+pre-generated dataset simulated under the limited-IV TWMR setting
+(exposure GWAS sample size = 300, outcome GWAS sample size = 20,000,
+true causal effect <span class="math inline">\(\beta = 0\)</span>).</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>d1 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/seso_uhp_only_example.rds&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(d1<span class="sc">$</span>b_exp,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>                d1<span class="sc">$</span>se_exp,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>                d1<span class="sc">$</span>b_out,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>                d1<span class="sc">$</span>se_out,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;seso_uhp_only&quot;</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="do">## Running model: seso_uhp_only</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The causal effect estimate is %.4f</span><span class="sc">\n</span><span class="st">&quot;</span>, fit1<span class="sc">$</span>est))</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="do">## The causal effect estimate is -0.0419</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The standard error is %.4f</span><span class="sc">\n</span><span class="st">&quot;</span>, fit1<span class="sc">$</span>se))</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="do">## The standard error is 0.0297</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The two-sided p-value is %.4g</span><span class="sc">\n</span><span class="st">&quot;</span>, fit1<span class="sc">$</span>pval))</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="do">## The two-sided p-value is 0.1581</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The 95%% CI is [%.4f, %.4f]</span><span class="sc">\n</span><span class="st">&quot;</span>, fit1<span class="sc">$</span>ci[<span class="dv">1</span>], fit1<span class="sc">$</span>ci[<span class="dv">2</span>]))</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="do">## The 95% CI is [-0.1030, 0.0155]</span></span></code></pre></div>
 </div>
 <div id="single-exposure-single-outcome-with-chp-seso_with_chp" class="section level2">
 <h2>Single exposure, Single outcome with CHP:
 <code>seso_with_chp</code></h2>
 <p>When some IVs are suspected of having correlated horizontal
 pleiotropy, use <code>seso_with_chp</code>. We use a complex-trait
-example (exposure and outcome GWAS sample sizes both 20,000 for model
-illustration.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/seso_with_chp_example.rds&quot;</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(d2<span class="sc">$</span>b_exp, </span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>                d2<span class="sc">$</span>se_exp, </span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>                d2<span class="sc">$</span>b_out, </span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>                d2<span class="sc">$</span>se_out,</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;seso_with_chp&quot;</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="do">## Running model: seso_with_chp</span></span></code></pre></div>
+example for model illustration (exposure and outcome GWAS sample sizes
+both 20,000, true causal effect <span class="math inline">\(\beta =
+0.2\)</span>).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/seso_with_chp_example.rds&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(d2<span class="sc">$</span>b_exp,</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>                d2<span class="sc">$</span>se_exp,</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>                d2<span class="sc">$</span>b_out,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                d2<span class="sc">$</span>se_out,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;seso_with_chp&quot;</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="do">## Running model: seso_with_chp</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The causal effect estimate is %.4f</span><span class="sc">\n</span><span class="st">&quot;</span>, fit2<span class="sc">$</span>est))</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="do">## The causal effect estimate is 0.0146</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The standard error is %.4f</span><span class="sc">\n</span><span class="st">&quot;</span>, fit2<span class="sc">$</span>se))</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="do">## The standard error is 0.0131</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The two-sided p-value is %.4g</span><span class="sc">\n</span><span class="st">&quot;</span>, fit2<span class="sc">$</span>pval))</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="do">## The two-sided p-value is 0.2684</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The 95%% CI is [%.4f, %.4f]</span><span class="sc">\n</span><span class="st">&quot;</span>, fit2<span class="sc">$</span>ci[<span class="dv">1</span>], fit2<span class="sc">$</span>ci[<span class="dv">2</span>]))</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="do">## The 95% CI is [-0.0115, 0.0398]</span></span></code></pre></div>
 </div>
 </div>
 <div id="fusiomr_m-multi-outcome-mr-models-accounting-for-shared-pleiotropy" class="section level1">
@@ -553,15 +605,37 @@ and <code>se_out</code> must be <code>K x 2</code> matrices, where
 column <span class="math inline">\(j\)</span> contains summary
 statistics for outcome <span class="math inline">\(j\)</span>. We use a
 TWMR-style example with one shared exposure and two outcomes for
-illustration. (exposure sample size = 300, outcome 1 sample size =
-80,000, outcome 2 sample size = 20,000).</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>d3 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/semo_example.rds&quot;</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>fit3 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(d3<span class="sc">$</span>b_exp, </span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>                d3<span class="sc">$</span>se_exp, </span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>                d3<span class="sc">$</span>b_out, </span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                d3<span class="sc">$</span>se_out,</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;semo&quot;</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="do">## Running model: semo</span></span></code></pre></div>
+illustration (exposure sample size = 300, outcome 1 sample size =
+80,000, outcome 2 sample size = 20,000, true causal effects <span class="math inline">\(\beta_1 = \beta_2 = 0\)</span>).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>d3 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/semo_example.rds&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>fit3 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(d3<span class="sc">$</span>b_exp,</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>                d3<span class="sc">$</span>se_exp,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>                d3<span class="sc">$</span>b_out,</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>                d3<span class="sc">$</span>se_out,</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;semo&quot;</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="do">## Running model: semo</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Outcome 1:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="do">## Outcome 1:</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The causal effect estimate is %.4f</span><span class="sc">\n</span><span class="st">&quot;</span>, fit3<span class="sc">$</span>est[<span class="dv">1</span>]))</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="do">## The causal effect estimate is 0.0505</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The standard error is %.4f</span><span class="sc">\n</span><span class="st">&quot;</span>, fit3<span class="sc">$</span>se[<span class="dv">1</span>]))</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="do">## The standard error is 0.0696</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The two-sided p-value is %.4g</span><span class="sc">\n</span><span class="st">&quot;</span>, fit3<span class="sc">$</span>pval[<span class="dv">1</span>]))</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="do">## The two-sided p-value is 0.4687</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The 95%% CI is [%.4f, %.4f]</span><span class="sc">\n</span><span class="st">&quot;</span>, fit3<span class="sc">$</span>ci[<span class="dv">1</span>, <span class="dv">1</span>], fit3<span class="sc">$</span>ci[<span class="dv">1</span>, <span class="dv">2</span>]))</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="do">## The 95% CI is [-0.0963, 0.1945]</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Outcome 2:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="do">## Outcome 2:</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The causal effect estimate is %.4f</span><span class="sc">\n</span><span class="st">&quot;</span>, fit3<span class="sc">$</span>est[<span class="dv">2</span>]))</span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="do">## The causal effect estimate is 0.0668</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The standard error is %.4f</span><span class="sc">\n</span><span class="st">&quot;</span>, fit3<span class="sc">$</span>se[<span class="dv">2</span>]))</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="do">## The standard error is 0.0787</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The two-sided p-value is %.4g</span><span class="sc">\n</span><span class="st">&quot;</span>, fit3<span class="sc">$</span>pval[<span class="dv">2</span>]))</span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="do">## The two-sided p-value is 0.3956</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;The 95%% CI is [%.4f, %.4f]</span><span class="sc">\n</span><span class="st">&quot;</span>, fit3<span class="sc">$</span>ci[<span class="dv">2</span>, <span class="dv">1</span>], fit3<span class="sc">$</span>ci[<span class="dv">2</span>, <span class="dv">2</span>]))</span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="do">## The 95% CI is [-0.0870, 0.2294]</span></span></code></pre></div>
 </div>
 <div id="two-exposures-two-outcomes-memo" class="section level2">
 <h2>Two exposures, Two outcomes: <code>memo</code></h2>
@@ -570,12 +644,12 @@ exposures and two correlated outcomes, accounting for both UHP and CHP.
 The summary-statistics inputs become <code>K x 2</code> matrices for
 both the exposure side and the outcome side: column <span class="math inline">\(j\)</span> corresponds to exposure <span class="math inline">\(j\)</span> (or outcome <span class="math inline">\(j\)</span>).</p>
 <p>The call signature is:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># b_exp, se_exp, b_out, se_out are all K x 2 matrices</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>fit4 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(b_exp, </span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>                se_exp, </span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>                b_out, </span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>                se_out, </span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;memo&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># b_exp, se_exp, b_out, se_out are all K x 2 matrices</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>fit4 <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(b_exp, </span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>                se_exp, </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>                b_out, </span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                se_out, </span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>                <span class="at">model =</span> <span class="st">&quot;memo&quot;</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="advanced-parameter-setting-parameter_control" class="section level1">
@@ -659,18 +733,18 @@ moment toward the global.</td>
 </tbody>
 </table>
 <p>See <code>?parameter_control</code> for full details.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>ctrl <span class="ot">&lt;-</span> <span class="fu">parameter_control</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">niter =</span> <span class="dv">30000</span>,                   <span class="co"># longer MCMC</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">z_thresh =</span> <span class="fu">qnorm</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fl">5e-8</span> <span class="sc">/</span> <span class="dv">2</span>),  <span class="co"># winner&#39;s-curse correction</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">rho_ov  =</span> <span class="fl">0.2</span>                    <span class="co"># sample overlap correction</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>)</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(b_exp, </span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>               se_exp, </span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>               b_out, </span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>               se_out,</span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>               <span class="at">model =</span> <span class="st">&quot;seso_uhp_only&quot;</span>, </span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>               <span class="at">control =</span> ctrl)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>ctrl <span class="ot">&lt;-</span> <span class="fu">parameter_control</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">niter =</span> <span class="dv">30000</span>,                   <span class="co"># longer MCMC</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">z_thresh =</span> <span class="fu">qnorm</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fl">5e-8</span> <span class="sc">/</span> <span class="dv">2</span>),  <span class="co"># winner&#39;s-curse correction</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">rho_ov  =</span> <span class="fl">0.2</span>                    <span class="co"># sample overlap correction</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(b_exp, </span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>               se_exp, </span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>               b_out, </span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>               se_out,</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>               <span class="at">model =</span> <span class="st">&quot;seso_uhp_only&quot;</span>, </span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>               <span class="at">control =</span> ctrl)</span></code></pre></div>
 <div id="hybrid-empirical-bayes-priors-hybrid-true" class="section level2">
 <h2>Hybrid empirical-Bayes priors (<code>hybrid = TRUE</code>)</h2>
 <p>By default, FusioMR sets the variance priors using a
@@ -730,22 +804,22 @@ across exposures).</li>
 </ol>
 <div id="pseudo-code-with-hybrid-priors" class="section level3">
 <h3>pseudo-code with hybrid priors</h3>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># After computing global_mean_gamma and global_mean_theta from a reference scan:</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co"># seso example</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>ctrl_hybrid <span class="ot">&lt;-</span> <span class="fu">parameter_control</span>(</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">hybrid            =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">kappa_hybrid      =</span> <span class="dv">5</span>,</span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">global_mean_gamma =</span> global_mean_gamma,   <span class="co"># your global estimate (scalar)</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="at">global_mean_theta =</span> global_mean_theta    <span class="co"># your global estimate (scalar)</span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>)</span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>fit_hybrid <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(b_exp, </span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>                      se_exp, </span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>                      b_out, </span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>                      se_out,</span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>                      <span class="at">model =</span> <span class="st">&quot;seso_uhp_only&quot;</span>, </span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>                      <span class="at">control =</span> ctrl_hybrid)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># After computing global_mean_gamma and global_mean_theta from a reference scan:</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co"># seso example</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>ctrl_hybrid <span class="ot">&lt;-</span> <span class="fu">parameter_control</span>(</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="at">hybrid            =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="at">kappa_hybrid      =</span> <span class="dv">5</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="at">global_mean_gamma =</span> global_mean_gamma,   <span class="co"># your global estimate (scalar)</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="at">global_mean_theta =</span> global_mean_theta    <span class="co"># your global estimate (scalar)</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>)</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>fit_hybrid <span class="ot">&lt;-</span> <span class="fu">fusiomr</span>(b_exp, </span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>                      se_exp, </span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>                      b_out, </span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>                      se_out,</span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>                      <span class="at">model =</span> <span class="st">&quot;seso_uhp_only&quot;</span>, </span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>                      <span class="at">control =</span> ctrl_hybrid)</span></code></pre></div>
 <p>If <code>hybrid = TRUE</code> is set but the required global
 argument(s) are missing or have the wrong shape, <code>fusiomr()</code>
 stops with an informative error message before running the sampler.</p>
@@ -754,8 +828,8 @@ stops with an informative error message before running the sampler.</p>
 </div>
 <div id="getting-help" class="section level1">
 <h1>Getting help</h1>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>?fusiomr</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>?parameter_control</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>?fusiomr</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>?parameter_control</span></code></pre></div>
 </div>
 
 

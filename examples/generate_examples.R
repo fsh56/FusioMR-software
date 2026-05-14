@@ -20,20 +20,20 @@ P_CUTOFF <- 1e-3
 
 set.seed(13)
 params_seso_uhp <- list(
-  m       = 200,    
-  nx      = 300,    
-  ny      = 20000,  
-  a_gamma = -0.3,   
+  m       = 200,
+  nx      = 300,
+  ny      = 20000,
+  a_gamma = -0.3,
   b_gamma = 0.3,
-  a_f     = 0.1,   
+  a_f     = 0.1,
   b_f     = 0.3,
-  a_alpha = -0.06,  
+  a_alpha = -0.06,
   b_alpha = 0.06,
-  a_phi   = -0.03,  
+  a_phi   = -0.03,
   b_phi   = 0.03,
-  theta   = 0,   
-  q_uhp   = 1,      
-  q_chp   = 0.05       
+  theta   = 0,        
+  q_uhp   = 1,
+  q_chp   = 0.05
 )
 
 sim_seso_uhp <- do.call(dgm4, params_seso_uhp)
@@ -46,7 +46,7 @@ seso_uhp_data <- list(
   b_out     = sim_seso_uhp$b_out[sel],
   se_out    = sim_seso_uhp$se_out[sel],
   true_beta = params_seso_uhp$theta,
-  setting   = "Paper Scenario 1A (param_sim1): FusioMR_s with limited IVs (n_x = 300), no CHP, p_cutoff = 1e-2",
+  setting   = "Paper Scenario 1A (param_sim1): FusioMR_s with limited IVs (n_x = 300), no CHP, p_cutoff = 1e-3, true beta = 0.2",
   params    = params_seso_uhp,
   p_cutoff  = P_CUTOFF,
   n_iv      = sum(sel),
@@ -58,7 +58,7 @@ cat(sprintf("Saved seso_uhp_only_example.rds : %d IVs selected, true beta = %.2f
 
 # ---- 2. seso_with_chp ------------------------------------------------------
 set.seed(4)
-P_CUTOFF_CHP <- 1e-5   
+P_CUTOFF_CHP <- 1e-5
 params_seso_chp <- list(
   m       = 200,
   nx      = 20000,    # complex-trait setting: large sample
@@ -67,13 +67,13 @@ params_seso_chp <- list(
   b_gamma = 0.3,
   a_f     = 0.1,
   b_f     = 0.3,
-  a_alpha = -0.03,    
+  a_alpha = -0.03,
   b_alpha = 0.03,
-  a_phi   = -0.05,    
+  a_phi   = -0.05,
   b_phi   = 0.05,
-  theta   = 0,    
+  theta   = 0,
   q_uhp   = 1,
-  q_chp   = 0.5  
+  q_chp   = 0.5
 )
 sim_seso_chp <- do.call(dgm4, params_seso_chp)
 z_exp2 <- abs(sim_seso_chp$b_exp / sim_seso_chp$se_exp)
@@ -99,24 +99,24 @@ cat(sprintf("Saved seso_with_chp_example.rds : %d IVs selected, true beta = %.3f
 
 # ---- 3. semo (single exposure, two outcomes) -------------------------------
 set.seed(1)
-P_CUTOFF_SEMO <- 1e-3    
+P_CUTOFF_SEMO <- 1e-3
 
 params_semo <- list(
   m         = 200,
   nx        = 300,
-  ny1       = 80000,     
-  ny2       = 20000,    
+  ny1       = 80000,
+  ny2       = 20000,
   a_gamma   = -0.3,
   b_gamma   = 0.3,
   a_f       = 0.1,
   b_f       = 0.3,
-  a_alpha1  = -0.1,     
+  a_alpha1  = -0.1,
   b_alpha1  = 0.1,
   a_alpha2  = -0.1,
   b_alpha2  = 0.1,
-  rho_theta = 0.8,       
-  theta1    = 0,       
-  theta2    = 0,      
+  rho_theta = 0.8,
+  theta1    = 0.2,
+  theta2    = 0.2,
   q_uhp1    = 1,
   q_uhp2    = 1
 )

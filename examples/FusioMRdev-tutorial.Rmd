@@ -97,50 +97,82 @@ install.packages(c("Rcpp", "RcppArmadillo", "invgamma"))
 ```
 
 # FusioMR_s: Single-outcome MR model allowing pleiotropy
+
 ## Single Exposure, Single Outcome: `seso_uhp_only`
 
 The `seso_uhp_only` model handles the most common MR setup: one exposure,
-one outcome, and uncorrelated horizontal pleiotropy as the main concern. The following is the function usage example with pre-generated example dataset, simulated udner the limited-IV
-TWMR setting (exposure GWAS sample size = 300, outcome GWAS sample size = 20,000).
+one outcome, and uncorrelated horizontal pleiotropy as the main concern. The
+following is the function usage example with a pre-generated dataset
+simulated under the limited-IV TWMR setting (exposure GWAS sample size = 300,
+outcome GWAS sample size = 20,000, true causal effect $\beta = 0$).
 
 ```{r seso-uhp-load}
 d1 <- readRDS("data/seso_uhp_only_example.rds")
-fit1 <- fusiomr(d1$b_exp, 
-                d1$se_exp, 
-                d1$b_out, 
+fit1 <- fusiomr(d1$b_exp,
+                d1$se_exp,
+                d1$b_out,
                 d1$se_out,
                 model = "seso_uhp_only")
+
+cat(sprintf("The causal effect estimate is %.4f\n", fit1$est))
+cat(sprintf("The standard error is %.4f\n", fit1$se))
+cat(sprintf("The two-sided p-value is %.4g\n", fit1$pval))
+cat(sprintf("The 95%% CI is [%.4f, %.4f]\n", fit1$ci[1], fit1$ci[2]))
 ```
 
 ## Single exposure, Single outcome with CHP: `seso_with_chp`
 
-When some IVs are suspected of having correlated horizontal pleiotropy, use `seso_with_chp`. 
-We use a complex-trait example (exposure and outcome GWAS sample sizes both 20,000 for model illustration.
+When some IVs are suspected of having correlated horizontal pleiotropy, use
+`seso_with_chp`. We use a complex-trait example for model illustration
+(exposure and outcome GWAS sample sizes both 20,000, true causal effect
+$\beta = 0.2$).
 
 ```{r seso-chp-fit}
 d2 <- readRDS("data/seso_with_chp_example.rds")
-fit2 <- fusiomr(d2$b_exp, 
-                d2$se_exp, 
-                d2$b_out, 
+fit2 <- fusiomr(d2$b_exp,
+                d2$se_exp,
+                d2$b_out,
                 d2$se_out,
                 model = "seso_with_chp")
+
+cat(sprintf("The causal effect estimate is %.4f\n", fit2$est))
+cat(sprintf("The standard error is %.4f\n", fit2$se))
+cat(sprintf("The two-sided p-value is %.4g\n", fit2$pval))
+cat(sprintf("The 95%% CI is [%.4f, %.4f]\n", fit2$ci[1], fit2$ci[2]))
 ```
 
 # FusioMR_m: Multi-outcome MR models accounting for shared pleiotropy
+
 ## Single exposure, Two outcomes: `semo`
 
-`semo` jointly analyzes one exposure and two outcomes. The input format differs from the single-outcome models: `b_out` and `se_out` must be `K x 2` matrices, where column $j$ contains summary
-statistics for outcome $j$. We use a TWMR-style example with one shared exposure and two outcomes for illustration. (exposure sample size = 300, outcome 1 sample size = 80,000, outcome 2 sample size = 20,000).
+`semo` jointly analyzes one exposure and two outcomes. The input format
+differs from the single-outcome models: `b_out` and `se_out` must be
+`K x 2` matrices, where column $j$ contains summary statistics for
+outcome $j$. We use a TWMR-style example with one shared exposure and two
+outcomes for illustration (exposure sample size = 300, outcome 1 sample
+size = 80,000, outcome 2 sample size = 20,000, true causal effects
+$\beta_1 = \beta_2 = 0$).
 
 ```{r semo-fit}
 d3 <- readRDS("data/semo_example.rds")
-fit3 <- fusiomr(d3$b_exp, 
-                d3$se_exp, 
-                d3$b_out, 
+fit3 <- fusiomr(d3$b_exp,
+                d3$se_exp,
+                d3$b_out,
                 d3$se_out,
                 model = "semo")
-```
 
+cat("Outcome 1:\n")
+cat(sprintf("The causal effect estimate is %.4f\n", fit3$est[1]))
+cat(sprintf("The standard error is %.4f\n", fit3$se[1]))
+cat(sprintf("The two-sided p-value is %.4g\n", fit3$pval[1]))
+cat(sprintf("The 95%% CI is [%.4f, %.4f]\n", fit3$ci[1, 1], fit3$ci[1, 2]))
+
+cat("Outcome 2:\n")
+cat(sprintf("The causal effect estimate is %.4f\n", fit3$est[2]))
+cat(sprintf("The standard error is %.4f\n", fit3$se[2]))
+cat(sprintf("The two-sided p-value is %.4g\n", fit3$pval[2]))
+cat(sprintf("The 95%% CI is [%.4f, %.4f]\n", fit3$ci[2, 1], fit3$ci[2, 2]))
+```
 
 ## Two exposures, Two outcomes: `memo`
 
