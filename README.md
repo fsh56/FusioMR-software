@@ -1,15 +1,13 @@
-# FusioMRdev
+# FusioMR
 
 > **F**lexible, **U**nified and ver**S**atile Mendel**I**an Rand**O**mization framework — **dev**elopment version.
 
-`FusioMRdev` is the R implementation of FusioMR, a Bayesian hierarchical framework for single- and multi-outcome Mendelian randomization (MR) using GWAS summary statistics. It is designed primarily for molecular trait exposures (e.g., gene expression), where the number of available cis-QTLs as instrumental variables (IVs) is often limited and horizontal pleiotropy is pervasive. FusioMR is also applicable to complex trait exposures with a moderate-to-large number of IVs. For methodological details, please refer to https://doi.org/10.1016/j.ajhg.2026.03.017.
-
-> **Note**: This is the development version of FusioMR. For the stable
-> release, see [kangbw702/FusioMR](https://github.com/kangbw702/FusioMR).
+`FusioMR` is the R implementation of FusioMR, a Bayesian hierarchical framework for single- and multi-outcome Mendelian randomization (MR) using GWAS summary statistics. 
+It is designed primarily for molecular trait exposures (e.g., gene expression), where the number of available cis-QTLs as instrumental variables (IVs) is often limited and horizontal pleiotropy is pervasive. FusioMR is also applicable to complex trait exposures with a moderate-to-large number of IVs. For methodological details, please refer to https://doi.org/10.1016/j.ajhg.2026.03.017.
 
 ## Installation
 
-`FusioMRdev` requires **R >= 4.3.0** and a working C++ compiler:
+`FusioMR` requires **R >= 4.3.0** and a working C++ compiler:
 
 - **macOS**: `xcode-select --install`
 - **Windows**: install [Rtools](https://cran.r-project.org/bin/windows/Rtools/)
@@ -18,8 +16,8 @@ Install the development version from GitHub:
 
 ```r
 # install.packages("devtools")
-devtools::install_github("fsh56/FusioMR-software")
-library(FusioMRdev)
+devtools::install_github("kangbw702/FusioMR")
+library(FusioMR)
 ```
 
 ### Dependencies
@@ -51,10 +49,10 @@ summary statistics:
 | `se_out` | Standard errors of `b_out`    |
 
 All four must have the same length, and the input data should already be
-preprocessed (LD-clumped, IV-selected, harmonized). `FusioMRdev` does not
+preprocessed (LD-clumped, IV-selected, harmonized). `FusioMR` does not
 perform data preprocessing.
 
-`FusioMRdev` supports four models via the `model` argument. Pick the one
+`FusioMR` supports four models via the `model` argument. Pick the one
 that matches your data:
 
 | Model            | Exposure | Outcome | Use when                                       |
@@ -80,7 +78,7 @@ The returned object is a list with the MR estimates:
 ## Quick Start
 
 ```r
-library(FusioMRdev)
+library(FusioMR)
 
 # Load an example dataset (single exposure, single outcome, UHP only)
 d <- readRDS("examples/data/seso_uhp_only_example.rds")
@@ -93,7 +91,7 @@ fit$est; fit$se; fit$pval; fit$ci
 
 For full examples covering all four models, advanced parameter tuning, and
 hybrid empirical-Bayes priors, see the
-[tutorial vignette](vignettes/FusioMRdev-tutorial.Rmd).
+[tutorial vignette](vignettes/FusioMR-tutorial.Rmd).
 
 ## Simulation and Method Validation
 

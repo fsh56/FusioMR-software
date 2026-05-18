@@ -27,10 +27,10 @@ This vignette demonstrates how to use `FusioMRdev` for single- and
 multi-outcome Mendelian randomization with GWAS summary statistics.
 For installation instructions, package overview, and a description of
 input / output formats, see the
-[README](https://github.com/kangbw702/FusioMR).
+[README](https://github.com/fsh56/FusioMR-software).
 
 The example datasets used below are available in the
-[examples/data/](https://github.com/kangbw702/FusioMR/tree/main/examples/data)
+[examples/data/](https://github.com/fsh56/FusioMR-software/tree/main/examples/data)
 folder of the GitHub repository.
 
 # FusioMR_s: Single-outcome MR model allowing pleiotropy
