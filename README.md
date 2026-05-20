@@ -116,7 +116,7 @@ functions and benchmarking pipelines, are available at
 
 This is a pre-release version actively under development. Please report
 bugs or suggest features via
-[GitHub Issues](https://github.com/fsh56/FusioMR-software/issues)
+[GitHub Issues](https://github.com/kangbw702/FusioMR/issues)
 or contact the authors at
 [kbw@uchicago.edu](mailto:kbw@uchicago.edu),
 [sfeng56@uchicago.edu](mailto:sfeng56@uchicago.edu).

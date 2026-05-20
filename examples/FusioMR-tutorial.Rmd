@@ -5,7 +5,7 @@ output:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{FusioMRdev Tutorial}
+  %\VignetteIndexEntry{FusioMR Tutorial}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r load, include = FALSE}
-library(FusioMR)
+library(FusioMRdev)
 ```
 
 This vignette demonstrates how to use `FusioMRdev` for single- and
@@ -62,7 +62,7 @@ cat(sprintf("The 95%% CI is [%.4f, %.4f]\n", fit1$ci[1], fit1$ci[2]))
 When some IVs are suspected of having correlated horizontal pleiotropy, use
 `seso_with_chp`. We use a complex-trait example for model illustration
 (exposure and outcome GWAS sample sizes both 20,000, true causal effect
-$\beta = 0.2$).
+$\beta = 0$).
 
 ```{r seso-chp-fit}
 d2 <- readRDS("data/seso_with_chp_example.rds")
@@ -88,7 +88,7 @@ differs from the single-outcome models: `b_out` and `se_out` must be
 outcome $j$. We use a TWMR-style example with one shared exposure and two
 outcomes for illustration (exposure sample size = 300, outcome 1 sample
 size = 80,000, outcome 2 sample size = 20,000, true causal effects
-$\beta_1 = \beta_2 = 0$).
+$\beta_1 = \beta_2 = 0.2$).
 
 ```{r semo-fit}
 d3 <- readRDS("data/semo_example.rds")
