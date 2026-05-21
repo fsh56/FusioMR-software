@@ -113,19 +113,33 @@ cat(sprintf("The 95%% CI is [%.4f, %.4f]\n", fit3$ci[2, 1], fit3$ci[2, 2]))
 
 ## Two exposures, Two outcomes: `memo`
 
-`memo` is the model which jointly analyzes two correlated exposures and two correlated outcomes, accounting for both UHP and CHP. The summary-statistics inputs become `K x 2` matrices for
-both the exposure side and the outcome side: column $j$ corresponds to
-exposure $j$ (or outcome $j$).
+`memo` jointly analyzes two correlated exposures and two correlated
+outcomes, accounting for both UHP and CHP. All four summary-statistics
+inputs (`b_exp`, `se_exp`, `b_out`, `se_out`) must be `K x 2` matrices,
+where column $j$ corresponds to exposure $j$ (or outcome $j$). We use a
+two-exposure, two-outcome example for illustration (exposure sample size = 300, 
+outcome 1 sample size = 50,000, outcome 2 sample size = 50,000, true causal effects
+$\beta_1 = \beta_2 = 0.2$).
 
-The call signature is:
-
-```{r memo-call, eval = FALSE}
-# b_exp, se_exp, b_out, se_out are all K x 2 matrices
-fit4 <- fusiomr(b_exp, 
-                se_exp, 
-                b_out, 
-                se_out, 
+```{r memo-fit}
+d4 <- readRDS("data/memo_example.rds")
+fit4 <- fusiomr(d4$b_exp,
+                d4$se_exp,
+                d4$b_out,
+                d4$se_out,
                 model = "memo")
+
+cat("Outcome 1:\n")
+cat(sprintf("The causal effect estimate is %.4f\n", fit4$est[1]))
+cat(sprintf("The standard error is %.4f\n", fit4$se[1]))
+cat(sprintf("The two-sided p-value is %.4g\n", fit4$pval[1]))
+cat(sprintf("The 95%% CI is [%.4f, %.4f]\n", fit4$ci[1, 1], fit4$ci[1, 2]))
+
+cat("Outcome 2:\n")
+cat(sprintf("The causal effect estimate is %.4f\n", fit4$est[2]))
+cat(sprintf("The standard error is %.4f\n", fit4$se[2]))
+cat(sprintf("The two-sided p-value is %.4g\n", fit4$pval[2]))
+cat(sprintf("The 95%% CI is [%.4f, %.4f]\n", fit4$ci[2, 1], fit4$ci[2, 2]))
 ```
 
 # Advanced Parameter Setting: `parameter_control()`

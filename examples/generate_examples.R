@@ -11,6 +11,7 @@ Rcpp::sourceCpp("dgm/fastlm.cpp")
 # Source the data-generating functions.
 source("dgm/dgm4.R")
 source("dgm/dgm5.R")
+source("dgm/dgm6.R")
 
 # Output directory.
 dir.create("data", showWarnings = FALSE)
@@ -134,7 +135,7 @@ semo_data <- list(
   b_out     = b_out_mat,
   se_out    = se_out_mat,
   true_beta = c(params_semo$theta1, params_semo$theta2),
-  setting   = "Simulation 2 (shared exposure, two outcomes)",
+  setting   = "shared exposure, two outcomes",
   params    = params_semo,
   p_cutoff  = P_CUTOFF_SEMO,
   n_iv      = sum(sel3),
@@ -144,3 +145,68 @@ semo_data <- list(
 saveRDS(semo_data, file = "data/semo_example.rds")
 cat(sprintf("Saved semo_example.rds : %d IVs selected, true betas = (%.2f, %.2f)\n",
             semo_data$n_iv, semo_data$true_beta[1], semo_data$true_beta[2]))
+
+# ---- 4. memo (two exposures, two outcomes) ---------------------------------
+set.seed(4)
+P_CUTOFF_MEMO <- 1e-5
+
+params_memo <- list(
+  m         = 200,
+  nx1       = 50000,  
+  nx2       = 50000,   
+  ny1       = 50000,   
+  ny2       = 50000,   
+  a_gamma1  = -0.3,
+  b_gamma1  = 0.3,
+  a_gamma2  = -0.3,
+  b_gamma2  = 0.3,
+  rho_gamma = 0.8,      
+  a_f       = 0.1,
+  b_f       = 0.3,
+  a_alpha1  = -0.02,
+  b_alpha1  = 0.02,
+  a_alpha2  = -0.02,
+  b_alpha2  = 0.02,
+  rho_alpha = 0.4,     
+  a_phi1    = -0.05,
+  b_phi1    = 0.05,
+  a_phi2    = -0.05,
+  b_phi2    = 0.05,
+  rho_eta   = 0.4,     
+  theta1    = 0.2,
+  theta2    = 0.2,
+  q_uhp1    = 1,
+  q_uhp2    = 1,
+  q_chp1    = 0.1,
+  q_chp2    = 0.1
+)
+
+sim_memo <- do.call(dgm6, params_memo)
+
+z_exp1 <- abs(sim_memo$b_exp_1 / sim_memo$se_exp_1)
+z_exp2 <- abs(sim_memo$b_exp_2 / sim_memo$se_exp_2)
+p_exp1 <- 2 * pnorm(z_exp1, lower.tail = FALSE)
+p_exp2 <- 2 * pnorm(z_exp2, lower.tail = FALSE)
+sel4   <- (p_exp1 < P_CUTOFF_MEMO) & (p_exp2 < P_CUTOFF_MEMO)
+
+b_exp_mat_m  <- cbind(sim_memo$b_exp_1[sel4],  sim_memo$b_exp_2[sel4])
+se_exp_mat_m <- cbind(sim_memo$se_exp_1[sel4], sim_memo$se_exp_2[sel4])
+b_out_mat_m  <- cbind(sim_memo$b_out_1[sel4],  sim_memo$b_out_2[sel4])
+se_out_mat_m <- cbind(sim_memo$se_out_1[sel4], sim_memo$se_out_2[sel4])
+
+memo_data <- list(
+  b_exp     = b_exp_mat_m,
+  se_exp    = se_exp_mat_m,
+  b_out     = b_out_mat_m,
+  se_out    = se_out_mat_m,
+  true_beta = c(params_memo$theta1, params_memo$theta2),
+  setting   = "two exposures, two outcomes; UHP + CHP",
+  params    = params_memo,
+  p_cutoff  = P_CUTOFF_MEMO,
+  n_iv      = sum(sel4),
+  seed      = 4
+)
+
+saveRDS(memo_data, file = "data/memo_example.rds")
+cat(sprintf("Saved memo_example.rds : %d IVs selected, true betas = (%.2f, %.2f)\n",
+            memo_data$n_iv, memo_data$true_beta[1], memo_data$true_beta[2]))
